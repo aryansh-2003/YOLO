@@ -3,7 +3,7 @@ import axios from 'axios'
 export class UserService{
     constructor(){
         this.instance = axios.create({
-            baseURL: 'http://localhost:8000/api/v1/user'
+            baseURL: 'https://yolo-backend-q3lv.onrender.com/api/v1/user'
         })
     }
 
