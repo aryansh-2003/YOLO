@@ -82,7 +82,7 @@ const HomePage = () => {
     
       const newmessge = {
       id: Date.now().toString() + Math.random().toString(36).slice(2) ,
-      user: userData.username,
+      user: userData.fullname,
       avatar: '👩🏻',
       text: inputText,
       image: null,
@@ -93,7 +93,7 @@ const HomePage = () => {
 
     socket.emit("newMessage", {
       id: Date.now().toString() + Math.random().toString(36).slice(2),
-      user: userData.username,
+      user: userData.fullname,
       avatar: '👩🏻',
       text: inputText,
       image: null,
