@@ -16,7 +16,7 @@ const LegendsSidebar = ({ legends, isMobile = false }) => {
            <div className="text-center font-bold text-gray-400 italic mt-10">No legends online... yet.</div>
         ) : (
           legends.map((legend) => (
-            <div key={legend?._id} className="relative group">
+            <div key={legend?.[1]?.userData?.id} className="relative group">
               <div className={`bg-white border-2 border-black rounded-2xl p-3 flex flex-col items-center gap-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1 `}>
                 
                 <div className={`absolute top-3 right-3 w-3 h-3 rounded-full border border-black bg-green-400`}></div>
@@ -26,7 +26,7 @@ const LegendsSidebar = ({ legends, isMobile = false }) => {
                 </div>
                 
                 <div className="text-center">
-                  <h3 className="font-black text-sm uppercase">{legend?.fullname}</h3>
+                  <h3 className="font-black text-sm uppercase">{legend?.[1]?.userData?.fullname}</h3>
                   <div className={`mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-black text-[10px] font-bold bg-blue-300 `}>
                     <Smile size={10} />
                     Vibing

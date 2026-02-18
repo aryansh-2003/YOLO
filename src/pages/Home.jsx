@@ -28,10 +28,7 @@ const HomePage = () => {
   const [showMobileLegends, setShowMobileLegends] = useState(false);
 
   useEffect(() => {
-        socket.on("activeUsers", (users) => {
-      console.log(users)
-      setLegends(users)
-    });
+
     if(!userData) return
     messageService.getHistory().then((res) => {
       if(res){
@@ -70,6 +67,10 @@ const HomePage = () => {
           socket.off("textMessage"); 
         };
   }, [userData]);
+
+      socket.on("activeUsers", (users) => {
+      setLegends(users)
+    });
 
   const handleSend = () => {
     if (!inputText.trim()) return;

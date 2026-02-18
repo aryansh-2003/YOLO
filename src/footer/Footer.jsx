@@ -59,14 +59,15 @@ const Footer = () => {
           <h3 className="font-black text-xl mb-4 uppercase border-b-4 border-[#4ADE80] inline-block">Stalk Us 👀</h3>
           <div className="flex flex-wrap gap-3">
             {[
-              { icon: <Instagram size={20} />, color: 'bg-[#F87171]' },
-              { icon: <Twitter size={20} />, color: 'bg-[#60A5FA]' },
-              { icon: <Linkedin size={20} />, color: 'bg-[#FCD34D]' },
-              { icon: <Ghost size={20} />, color: 'bg-white' },
+              { icon: <Instagram size={20} />, color: 'bg-[#F87171]' ,link:""},
+              { icon: <Twitter size={20} />, color: 'bg-[#60A5FA]', link:"" },
+              { icon: <Linkedin size={20} />, color: 'bg-[#FCD34D]',link:"https://www.linkedin.com/in/aryansh-dixit-1046b2305" },
+              { icon: <Ghost size={20} />, color: 'bg-white',link:"" },
             ].map((social, idx) => (
               <a 
                 key={idx} 
-                href="#" 
+                href={social.link} 
+                target='_blank'
                 className={`${social.color} w-10 h-10 flex items-center justify-center border-2 border-black rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-none transition-all`}
               >
                 {social.icon}
