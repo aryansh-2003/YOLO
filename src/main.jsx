@@ -7,6 +7,7 @@ import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, u
 import Login from './login/logIn'
 import Home from './pages/Home'
 import App from './App.jsx'
+import HealthChecker from './pages/HealthChecker.jsx'
 
 
 
@@ -24,6 +25,10 @@ import App from './App.jsx'
           {
             path:'/home',
             element:<Home/>
+          },
+          {
+            path:'/healthChecker',
+            element:<HealthChecker/>
           },
         ]
       }

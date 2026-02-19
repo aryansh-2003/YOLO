@@ -6,8 +6,9 @@ import LegendsSidebar from '../components/LegendsSidebar';
 import ChatArea from '../components/ChatArea';
 import {useSelector} from 'react-redux'
 import messageService from '../../service/message.service'
-// --- SHARED DATA ---
-// (In a real app, these might come from an API or Context)
+
+
+
 const STATIC_ROOMS = [
   { id: 1, name: 'THE MEME DEN', active: true, iconType: 'smile' },
   { id: 2, name: 'PIZZA CULT', active: false, iconType: 'pizza' },
