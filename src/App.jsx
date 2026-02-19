@@ -13,7 +13,7 @@ function App() {
   const [user,setUser] = useState(JSON.parse(localStorage.getItem("userData")))
 
   useEffect(() => {
-    if(location.pathname == "/healthChecker") return
+    if(location.pathname !== "/healthChecker"){
     if(!userData){
       socket.on("connect",() => {
           setUser(prevUser => {
@@ -31,7 +31,7 @@ function App() {
       navigate('/home')
     }else if(userData){
       navigate('/home')
-    }
+    }}
   },[userData])
 
  return(
