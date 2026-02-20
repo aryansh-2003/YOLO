@@ -6,6 +6,7 @@ import LegendsSidebar from '../components/LegendsSidebar';
 import ChatArea from '../components/ChatArea';
 import {useSelector} from 'react-redux'
 import messageService from '../../service/message.service'
+import FunkyLoader from '../components/FunkyLoader'
 
 
 
@@ -18,13 +19,13 @@ const STATIC_ROOMS = [
 ];
 
 const HomePage = () => {
-  // --- STATE ---
+
   const [inputText, setInputText] = useState("");
   const [legends, setLegends] = useState([]);
   const userData = useSelector(state => state.auth.userData)
   const [messages, setMessages] = useState([]);
+  const [loader, setLoader] = useState(true)
 
-  // Mobile Drawer States
   const [showMobileRooms, setShowMobileRooms] = useState(false);
   const [showMobileLegends, setShowMobileLegends] = useState(false);
 
@@ -33,6 +34,7 @@ const HomePage = () => {
     if(!userData) return
     messageService.getHistory().then((res) => {
       if(res){
+           setLoader(false)
            res.data.map((message)=>{
            const isMe = userData ? message.userData?.[0]?._id === userData._id : false
            const newmessge = {
@@ -106,10 +108,14 @@ const HomePage = () => {
     setInputText("");
   };
 
+  if(loader){
+    return(
+      <FunkyLoader/>
+    )
+  }
+
   return (
     <div className="h-screen w-full bg-[#FFFDF5] font-sans text-black relative flex flex-col items-center p-0 md:p-6 overflow-hidden">
-      
-      {/* --- GLOBAL STYLES --- */}
       <style>{`
         @keyframes popIn {
           0% { opacity: 0; transform: scale(0.5) translateY(20px); }
