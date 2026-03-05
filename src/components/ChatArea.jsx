@@ -1,5 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Send, Music, Flame, Menu, Users } from 'lucide-react';
+import EmojiPicker from 'emoji-picker-react';
 
 const ChatArea = ({ 
   messages, 
@@ -10,6 +11,12 @@ const ChatArea = ({
   onOpenLegends 
 }) => {
   const scrollContainerRef = useRef(null);
+  const [isOpen , setIsOpen] = useState(false)
+
+  const handleAdd = (emoji) => {
+    console.log(emoji)
+    setInputText(prev => prev+emoji.emoji)
+  }
 
   const scrollToBottom = () => {
     if (scrollContainerRef.current) {
@@ -37,7 +44,7 @@ const ChatArea = ({
           <Flame size={14} className="text-[#FCD34D]" fill="#FCD34D" /> Trending
         </div>
         <div className="bg-[#FCD34D] text-black px-4 py-1 rounded-full text-xs font-bold border-2 border-black shadow-md pointer-events-auto">
-          24 Online
+          24/hr Online
         </div>
       </div>
 
@@ -64,8 +71,8 @@ const ChatArea = ({
               
               {/* Avatar */}
               <div className="flex-shrink-0 flex flex-col items-center gap-1 mt-auto">
-                 <div className="w-10 h-10 rounded-full bg-white border-2 border-black flex items-center justify-center text-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                    {msg.avatar}
+                 <div className="w-12 h-12 rounded-full bg-white border-2 border-black flex items-center justify-center text-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] object-contain">
+                     <img src={msg.avatar} alt="" className="w-[80%]  object-" />
                  </div>
               </div>
 
@@ -109,7 +116,15 @@ const ChatArea = ({
           </div>
         </div>
 
-        <div className="relative -mt-1 flex gap-2">
+        <div className="relative -mt-1 flex flex-row gap-2">
+          <div className='w-[25%] lg:w-[15%]'>
+            <button onClick={() => setIsOpen(!isOpen)}>
+            <img src={"https://static.vecteezy.com/system/resources/thumbnails/029/167/653/small/smiling-face-with-three-hearts-3d-emoji-icon-in-transparant-background-png.png"} alt="" />
+            </button>
+            <div className={`w-full absolute bottom-18 ${isOpen ? 'visible' : 'hidden'}`}>
+                <EmojiPicker onEmojiClick={(emojiObject) => handleAdd(emojiObject)} />
+            </div>
+          </div>
           <input 
             type="text" 
             value={inputText}
@@ -118,10 +133,12 @@ const ChatArea = ({
             placeholder="Type some chaos..." 
             className="w-full bg-white border-4 border-black rounded-full rounded-tl-none px-6 py-4 font-bold text-lg outline-none focus:bg-blue-50 placeholder:text-gray-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors"
           />
+          
           <button 
             onClick={handleSend}
             className="bg-[#FCD34D] w-16 h-16 shrink-0 rounded-full border-4 border-black flex items-center justify-center hover:scale-105 active:scale-95 transition-transform shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
           >
+            
             <Send size={28} strokeWidth={3} className="ml-[-2px] mt-[2px]" />
           </button>
         </div>

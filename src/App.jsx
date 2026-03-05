@@ -23,7 +23,7 @@ function App() {
             }
           })
               socket.emit("connected" ,{user,socketID:socket.id})
-           console.log({user,socketID:socket.id})
+              console.log({user,socketID:socket.id})
       })
 
       if(!user) return

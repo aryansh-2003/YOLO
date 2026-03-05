@@ -9,8 +9,7 @@ export default function Layout(){
         <>
         <Navbar/>
         <div className='md:pt-20'>
-                    <Outlet/>
-
+        <Outlet/>
         </div>
         <div className='mb-20 md:m-0'>
         <Footer/>

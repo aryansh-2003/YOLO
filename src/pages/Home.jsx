@@ -10,6 +10,7 @@ import FunkyLoader from '../components/FunkyLoader'
 
 
 
+
 const STATIC_ROOMS = [
   { id: 1, name: 'THE MEME DEN', active: true, iconType: 'smile' },
   { id: 2, name: 'PIZZA CULT', active: false, iconType: 'pizza' },
@@ -40,7 +41,7 @@ const HomePage = () => {
            const newmessge = {
             id: message._id,
             user: message.userData?.[0]?.fullname,
-            avatar: '👩🏻',
+            avatar: message.userData?.[0]?.avatar ? message.userData?.[0]?.avatar : "https://api.dicebear.com/7.x/avataaars/svg?seed=new" ,
             text: message.content,
             image: null,
             isMe: isMe
@@ -53,11 +54,10 @@ const HomePage = () => {
     })
 
       socket.on("textMessage", (message) => {
-
           const newmessage = {
             id: Date.now().toString() + Math.random().toString(36).slice(2),
             user: message.user,
-            avatar: '👩🏻',
+            avatar: message.avatar,
             text: message.text,
             image: null,
             isMe: false,
@@ -80,14 +80,13 @@ const HomePage = () => {
 
 
     messageService.postMessage(userData,inputText).then((res) => {
-      console.log(res)
     }).catch((error) => {console.log(error)})
 
     
       const newmessge = {
       id: Date.now().toString() + Math.random().toString(36).slice(2) ,
       user: userData.fullname,
-      avatar: '👩🏻',
+      avatar: userData.avatar,
       text: inputText,
       image: null,
       isMe: true
@@ -98,7 +97,7 @@ const HomePage = () => {
     socket.emit("newMessage", {
       id: Date.now().toString() + Math.random().toString(36).slice(2),
       user: userData.fullname,
-      avatar: '👩🏻',
+      avatar: userData.avatar,
       text: inputText,
       image: null,
       isMe: false
@@ -162,9 +161,7 @@ const HomePage = () => {
 
       </div>
 
-      {/* --- MOBILE DRAWERS (Overlays) --- */}
       
-      {/* Left Drawer: Rooms */}
       <div className={`fixed inset-0 z-50 transform transition-transform duration-300 md:hidden ${showMobileRooms ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="absolute inset-0 bg-black/50" onClick={() => setShowMobileRooms(false)} />
         <div className="absolute left-0 top-0 bottom-0 w-[85%] bg-[#FFFDF5] border-r-4 border-black p-4 flex flex-col">
@@ -180,6 +177,7 @@ const HomePage = () => {
         <div className="absolute inset-0 bg-black/50" onClick={() => setShowMobileLegends(false)} />
         <div className="absolute right-0 top-0 bottom-0 w-[85%] bg-[#FFFDF5] border-l-4 border-black p-4 flex flex-col">
             <div className="flex justify-start mb-2">
+              
              <button onClick={() => setShowMobileLegends(false)} className="p-2 bg-red-400 border-2 border-black rounded-full"><X size={20}/></button>
            </div>
            <LegendsSidebar legends={legends} isMobile={true} />

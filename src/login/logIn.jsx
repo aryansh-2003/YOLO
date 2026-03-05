@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Dices, Rocket, Check, AtSign } from 'lucide-react';
 import { useForm } from "react-hook-form"
-import userService from '../../service/user.service'
-import {socket} from '../../service/socket.service'
 import {useDispatch} from 'react-redux'
-import {login} from "../Store/authSlice"
 import { useNavigate } from 'react-router-dom';
 
 
 export default function loginPage () {
   // State for inputs
-  const [name, setName] = useState("Alex Doe");
-  const [username, setUsername] = useState("spicy_meme_lord");
+
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -23,24 +19,23 @@ export default function loginPage () {
 
   const onsubmit = (data) =>{
     console.log(data)
+    navigate(`/setAvatar/${data.username}/${data.name}`)
+    // socket.emit("credentials", {
+    //   name:data.name,
+    //   username:data.username,
+    //   socketId: socket.id
+    // })
 
-    socket.emit("credentials", {
-      name:data.name,
-      username:data.username,
-      socketId: socket.id
-    })
 
-    dispatch(login({userData:"hii"}))
-
-    userService.getLoggedIn(data.name,data.username).then((result) =>{
-      console.log(result.data)
-      if(result){
-        dispatch(login(result?.data))
-        navigate('/home')
-      }
-    }).catch((error) => {
-      console.log(error.message)
-    })
+    // userService.getLoggedIn(data.name,data.username).then((result) =>{
+    //   console.log(result.data)
+    //   if(result){
+    //     dispatch(login(result?.data))
+    //     navigate('/home')
+    //   }
+    // }).catch((error) => {
+    //   console.log(error.message)
+    // })
 
   }
 
@@ -54,22 +49,19 @@ export default function loginPage () {
            }}>
       </div>
 
-      {/* Floating Background Elements (Decoration) */}
       <div className="absolute top-20 right-10 text-4xl opacity-20 rotate-12">🌚</div>
       <div className="absolute bottom-40 right-5 text-6xl opacity-20 -rotate-12">💩</div>
       <div className="absolute top-1/2 left-2 text-4xl opacity-20 rotate-45">👻</div>
       
-      {/* Main Content Container */}
       <div className="relative z-10 max-w-md mx-auto px-6 py-8 flex flex-col min-h-screen">
         
-        {/* Progress Bar */}
         <div className="flex gap-3 mb-8">
           <div className="h-4 flex-1 bg-[#6B66FF] rounded-full border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"></div>
           <div className="h-4 flex-1 bg-[#4ADE80] rounded-full border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"></div>
           <div className="h-4 flex-1 border-2 border-dashed border-gray-300 rounded-full"></div>
         </div>
 
-        {/* Header Section */}
+
         <div className="relative mb-6">
           <button className="absolute md:hidden -left-2 top-2 p-2 bg-white rounded-full border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all">
             <ArrowLeft className="w-6 h-6" />
@@ -78,13 +70,12 @@ export default function loginPage () {
           <div className="text-center pt-2">
             <h1 className="text-4xl font-black tracking-tight leading-none">
               Pick Your <br />
-              <span className="text-[#6B66FF]">Alias!</span> 
+              <span className="text-[#6B66FF]">Name!</span> 
               <span className="ml-2 inline-block animate-bounce">🧐</span>
             </h1>
           </div>
         </div>
 
-        {/* Helper Text Bubble */}
         <div className="relative mb-8">
             <div className="absolute -top-3 right-0 bg-white border-2 border-black px-3 py-1 rounded-full text-xs font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] z-20">
                 Nice choice!
@@ -100,7 +91,6 @@ export default function loginPage () {
         </div>
         <form onSubmit={handleSubmit(onsubmit)}>
 
-        {/* --- NAME SECTION (Requested Addition) --- */}
         <div className="mb-4">
           <label className="text-sm font-bold ml-1 mb-1 block">Your Name</label>
           <div className="bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center p-1">
@@ -115,7 +105,6 @@ export default function loginPage () {
           </div>
         </div>
 
-        {/* --- USERNAME SECTION (Original) --- */}
         <div className="mb-2">
            <label className="text-sm font-bold ml-1 mb-1 block">Username</label>
            <div className="bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center p-1">
@@ -131,7 +120,6 @@ export default function loginPage () {
           </div>
         </div>
 
-        {/* Status & Dice Row */}
         <div className="flex gap-3 mb-8 items-center mt-4">
             <div className="flex-1 bg-[#4ADE80] rounded-full border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] py-2 px-4 flex items-center gap-2">
                 <div className="bg-black rounded-full p-0.5">
@@ -144,24 +132,22 @@ export default function loginPage () {
             </button>
         </div>
 
-        {/* Suggestions Section */}
         <div className="mb-8">
-            <div className="inline-block bg-[#FCD34D] border-2 border-black px-3 py-1 -rotate-2 mb-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            {/* <div className="inline-block bg-[#FCD34D] border-2 border-black px-3 py-1 -rotate-2 mb-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                 <span className="font-black text-xs uppercase flex items-center gap-1">
                     Fresh from the oven 🍞
                 </span>
-            </div>
+            </div> */}
             
-            <div className="flex flex-wrap gap-2">
+            {/* <div className="flex flex-wrap gap-2">
                 {['yeet_master_9000', 'ok_boomer_lol', 'crying_in_club', 'dank_noodle'].map((tag) => (
                     <button key={tag} className="bg-white px-4 py-2 rounded-full border-2 border-gray-200 text-gray-600 font-bold text-xs hover:border-black hover:bg-gray-50 transition-colors">
                         {tag}
                     </button>
                 ))}
-            </div>
+            </div> */}
         </div>
 
-        {/* CTA Button */}
         <div className="mt-auto">
             <div className="relative">
                 {/* Decorative wave behind/near button */}
