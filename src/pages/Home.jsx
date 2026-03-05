@@ -33,6 +33,7 @@ const HomePage = () => {
   useEffect(() => {
 
     if(!userData) return
+    socket.emit("sendActiveUsers")
     messageService.getHistory().then((res) => {
       if(res){
            setLoader(false)
