@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Send, Music, Flame, Menu, Users } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
+import logo from '../../public/logo.png'
 
 const ChatArea = ({ 
   messages, 
@@ -53,7 +54,8 @@ const ChatArea = ({
         <button onClick={onOpenRooms} className="bg-white p-2 rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all">
           <Menu size={24} />
         </button>
-        <span className="font-black italic text-xl">PIXELCHAT</span>
+        <img className='w-[30%]' src={logo}/>
+        {/* <span className="font-black italic text-xl"></span> */}
         <button onClick={onOpenLegends} className="bg-[#FCD34D] p-2 rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all">
           <Users size={24} />
         </button>

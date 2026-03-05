@@ -13,10 +13,7 @@ import FunkyLoader from '../components/FunkyLoader'
 
 const STATIC_ROOMS = [
   { id: 1, name: 'THE MEME DEN', active: true, iconType: 'smile' },
-  { id: 2, name: 'PIZZA CULT', active: false, iconType: 'pizza' },
-  { id: 3, name: 'SKATER VIBES', active: false, iconType: 'car' },
-  { id: 4, name: 'ROBLOX RAGE', active: false, iconType: 'flame' },
-  { id: 5, name: 'CAT VIDEOS', active: false, iconType: 'smile' },
+ 
 ];
 
 const HomePage = () => {

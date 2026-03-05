@@ -40,7 +40,7 @@ const RoomsSidebar = ({ rooms, isMobile = false }) => {
       </div>
 
       <button className="w-full mt-4 bg-[#FCD34D] text-black font-black py-3 rounded-full border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-none transition-all flex items-center justify-center gap-2 shrink-0">
-        NEW ROOM <Plus size={20} strokeWidth={3} />
+        {/* NEW ROOM <Plus size={20} strokeWidth={3} /> */}
       </button>
     </div>
   );
