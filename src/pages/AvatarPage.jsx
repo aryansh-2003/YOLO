@@ -1,199 +1,216 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Dice5, 
-  ArrowRight, 
   Check, 
   Save, 
   RefreshCw,
   User,
-  Zap
+  Zap,
+  BellRing
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import userService from '../../service/user.service'
-import {socket} from '../../service/socket.service'
-import {login} from "../Store/authSlice"
 import { useDispatch } from 'react-redux';
+import userService from '../../service/user.service';
+import { socket } from '../../service/socket.service'; // Kept your import
+import { login } from "../Store/authSlice";
 
-
-// Different DiceBear styles to offer the user
-const AVATAR_STYLES = [
+const AVATAR_STYLES =[
   { id: 'avataaars', name: 'The Classic', label: 'OG Vibe' },
-  { id: 'notionists', name: 'Notion-ish', label: 'Productivity Guru' },
-  { id: 'bottts', name: 'Robo-Chad', label: 'Beep Boop' },
+  { id: 'notionists', name: 'Notion-ish', label: 'Study Mode' },
+  { id: 'bottts', name: 'Robo-Chad', label: 'Gadget AI' },
   { id: 'lorelei', name: 'Dreamy', label: 'Main Character' },
   { id: 'fun-emoji', name: 'Emojified', label: 'Just Vibes' },
   { id: 'pixel-art', name: '8-Bit', label: 'Retro Gamer' }
 ];
 
-function AvatarSelectionPage(){
-  // State
-  const [seedName, setSeedName] = useState('Stranger');
+export default function AvatarSelectionPage() {
+  const [seedName, setSeedName] = useState('Nobita');
   const [selectedStyle, setSelectedStyle] = useState('avataaars');
   const [isSaving, setIsSaving] = useState(false);
-  const {username,name} = useParams()
-  const navigate  = useNavigate()
-  const dispatch = useDispatch()
-
+  const { username, name } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   
-  // The final URL based on current selection
   const currentAvatarUrl = `https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${seedName}`;
 
-  // --- HANDLERS ---
-
-  // 1. Handle Randomize
   const handleRandomize = () => {
-    const randomSeeds = ['Neo', 'Glitch', 'Viper', 'Ghost', 'Pixel', 'Slayer', 'Juice', 'Vibe'];
+    const randomSeeds =['Neo', 'Glitch', 'Gian', 'Suneo', 'Dorami', 'Sewashi', 'Future', 'Gadget'];
     const random = randomSeeds[Math.floor(Math.random() * randomSeeds.length)] + Math.floor(Math.random() * 100);
     setSeedName(random);
   };
 
-  // 2. Handle "Save to MongoDB" (Simulation)
   const handleSave = () => {
     setIsSaving(true);
-
-    userService.getLoggedIn(name,username,currentAvatarUrl).then((result) =>{
+    userService.getLoggedIn(name, username, currentAvatarUrl).then((result) => {
       if(result){
         setIsSaving(false);
-        dispatch(login(result?.data))
-        navigate('/home')
+        dispatch(login(result?.data));
+        navigate('/home');
       }
     }).catch((error) => {
-      console.log(error.message)
-    })
-  
+      console.log(error.message);
+      setIsSaving(false);
+    });
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#FAFAF9] text-black font-sans selection:bg-yellow-400 overflow-x-hidden flex flex-col">
+    <div className="min-h-screen w-full bg-[#87CEEB] text-[#1e3a8a] font-sans selection:bg-[#FFD166] overflow-x-hidden flex flex-col relative">
       
-      {/* --- STYLES (Same as Landing Page) --- */}
+      {/* --- DORAEMON COMIC THEME CSS --- */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700;900&display=swap');
         
-        .font-neo { font-family: 'Space Grotesk', sans-serif; }
-        
-        .bg-neo-grid {
-          background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
-          background-size: 24px 24px;
+        .font-dora { font-family: 'Fredoka', sans-serif; }
+
+        .comic-border { border: 4px solid #1e3a8a; }
+        .comic-shadow { box-shadow: 6px 6px 0px 0px #1e3a8a; }
+        .comic-shadow-sm { box-shadow: 4px 4px 0px 0px #1e3a8a; }
+        .comic-shadow-btn { box-shadow: 4px 4px 0px 0px #ff47a3; }
+
+        .comic-shadow-hover:hover {
+          transform: translate(2px, 2px);
+          box-shadow: 2px 2px 0px 0px #1e3a8a;
         }
 
-        .neo-shadow { box-shadow: 4px 4px 0px 0px rgba(0,0,0,1); }
-        .neo-shadow-lg { box-shadow: 8px 8px 0px 0px rgba(0,0,0,1); }
-        .neo-shadow-hover:hover { 
-          transform: translate(2px, 2px); 
-          box-shadow: 0px 0px 0px 0px rgba(0,0,0,1);
+        .bg-polka-bg {
+          background-image: radial-gradient(#ffffff40 2px, transparent 2px);
+          background-size: 30px 30px;
         }
 
-        /* Input specific transition */
-        .neo-input:focus {
-          background-color: #FCD34D;
-          transform: translate(-2px, -2px);
-          box-shadow: 6px 6px 0px 0px rgba(0,0,0,1);
+        @keyframes float-gadget {
+          0%, 100% { transform: translateY(0) rotate(12deg); }
+          50% { transform: translateY(-15px) rotate(20deg); }
+        }
+        .animate-float-gadget { animation: float-gadget 4s ease-in-out infinite; }
+
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
+
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .animate-marquee { animation: marquee 15s linear infinite; }
+        
+        .active-style-ring {
+          outline: 4px solid #1e3a8a;
+          outline-offset: 2px;
         }
       `}</style>
 
-      {/* Background */}
-      <div className="absolute inset-0 bg-neo-grid z-0 pointer-events-none fixed" />
+      {/* --- BACKGROUND ELEMENTS --- */}
+      <div className="absolute inset-0 bg-polka-bg pointer-events-none z-0 fixed" />
 
-      {/* --- MAIN CONTENT --- */}
-      <main className="relative z-10 flex-grow flex flex-col items-center justify-center p-4 py-12 font-neo">
+      {/* Floating Elements */}
+      <div className="absolute top-24 right-10 text-6xl opacity-80 animate-float-gadget z-0 hidden md:block drop-shadow-md">🥞</div>
+      <div className="absolute bottom-40 left-12 text-6xl opacity-80 -rotate-12 animate-pulse z-0 hidden md:block drop-shadow-md">🚁</div>
+      <div className="absolute top-1/4 left-10 text-5xl opacity-80 rotate-45 z-0 hidden md:block drop-shadow-md">⏱️</div>
+
+      {/* === LEFT SIDE: NOBITA === */}
+      <div className="fixed bottom-0 -left-10 lg:left-0 xl:left-10 z-10 animate-float-slow hidden lg:block pointer-events-none">
+        <img 
+          src="https://www.pngplay.com/wp-content/uploads/10/Doraemon-Free-Picture-PNG.png" 
+          alt="Nobita" 
+          className="w-[220px] lg:w-[280px] xl:w-[320px] drop-shadow-[8px_8px_0_rgba(30,58,138,0.3)]"
+        />
+      </div>
+
+      {/* === RIGHT SIDE: SHIZUKA === */}
+      <div className="fixed bottom-0 -right-4 lg:right-0 xl:right-10 z-10 animate-float-slow hidden lg:block pointer-events-none" style={{ animationDelay: '1s' }}>
+        <img 
+          src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/4a8dd1a5-6175-4ee7-9e05-1f45ea78f328/dix6o4v-cd2cbf5e-18a4-4f2e-8dd6-4c5fb63aef74.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi80YThkZDFhNS02MTc1LTRlZTctOWUwNS0xZjQ1ZWE3OGYzMjgvZGl4Nm80di1jZDJjYmY1ZS0xOGE0LTRmMmUtOGRkNi00YzVmYjYzYWVmNzQucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.AuyJIIG4pbpgpxeSOLD3zmqPFRCD-IUltPjbs8c0V2g" 
+          alt="Shizuka" 
+          className="w-[200px] lg:w-[260px] xl:w-[300px] drop-shadow-[8px_8px_0_rgba(30,58,138,0.3)]"
+        />
+      </div>
+
+      <main className="relative z-30 flex-grow flex flex-col items-center justify-center p-4 py-12 font-dora">
         
-        {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-block bg-black text-white px-4 py-1 rounded-full text-sm font-bold mb-4">
-            STEP 1 OF 1
+        {/* --- HEADER --- */}
+        <div className="text-center mb-8">
+          <div className="inline-block bg-[#FFD166] text-[#1e3a8a] px-5 py-1.5 rounded-full text-sm font-black mb-4 comic-border comic-shadow-sm rotate-2">
+            STEP 2: GADGET SETUP
           </div>
-          <h1 className="text-5xl md:text-6xl font-black tracking-tight mb-2">
-            NEW PHONE <span className="bg-[#FCD34D] border-2 border-black px-2 inline-block transform -rotate-1 shadow-[4px_4px_0px_0px_black]">WHO DIS?</span>
+          <h1 className="text-5xl md:text-6xl font-black tracking-tight mb-2 text-white drop-shadow-[0_4px_4px_rgba(30,58,138,1)]" style={{ WebkitTextStroke: '2px #1e3a8a' }}>
+            SET YOUR <span className="bg-[#FF69B4] px-4 py-1 inline-block transform -rotate-2 comic-border comic-shadow mt-2 text-white" style={{ WebkitTextStroke: '0px' }}>AVATAR!</span>
           </h1>
-          <p className="text-xl text-gray-600 font-bold">
-            Create your digital alter-ego. Make it weird.
-          </p>
         </div>
 
-        {/* --- CARD CONTAINER --- */}
-        <div className="w-full max-w-5xl bg-white border-4 border-black rounded-3xl p-6 md:p-8 neo-shadow-lg flex flex-col md:flex-row gap-8 md:gap-12 items-start">
+        {/* --- MAIN CARD --- */}
+        <div className="w-full max-w-5xl bg-[#f8fafc] comic-border rounded-[2rem] p-6 md:p-8 comic-shadow flex flex-col md:flex-row gap-8 md:gap-12 items-start relative z-30">
           
-          {/* LEFT: INPUT & PREVIEW */}
+          {/* Left Column (Preview) */}
           <div className="w-full md:w-1/3 flex flex-col gap-6 sticky top-8">
             
-            {/* 1. Input Section */}
             <div className="flex flex-col gap-2">
-              <label className="font-black text-lg uppercase flex items-center gap-2">
-                <User className="w-5 h-5" /> Your Alias
+              <label className="font-black text-lg uppercase flex items-center gap-2 tracking-wide">
+                <User className="w-6 h-6 text-[#FF69B4]" strokeWidth={3} /> Gadget Alias
               </label>
               <div className="relative">
                 <input 
                   type="text" 
-                  value={username}
-                  // onChange={(e) => setSeedName(e.target.value)}
+                  value={username || ''}
                   disabled={true}
-                  className="neo-input w-full border-2 border-black rounded-xl px-4 py-3 font-bold text-xl outline-none transition-all bg-gray-50 placeholder-gray-400"
+                  className="w-full comic-border rounded-2xl px-5 py-4 font-black text-xl outline-none bg-white opacity-80 cursor-not-allowed"
                   placeholder="Type a name..."
                 />
                 <button 
                   onClick={handleRandomize}
-                  title="Randomize Name"
-                  className="absolute right-2 top-2 bottom-2 aspect-square flex items-center justify-center bg-white border-2 border-black rounded-lg hover:bg-gray-100 active:translate-y-1 transition-all"
+                  title="Randomize Avatar Seed"
+                  className="absolute right-2 top-2 bottom-2 aspect-square flex items-center justify-center bg-[#00AEEF] text-white comic-border rounded-xl hover:-translate-y-1 hover:shadow-[2px_2px_0px_#1e3a8a] active:translate-y-0 active:shadow-none transition-all"
                 >
-                  <Dice5 className="w-6 h-6" />
+                  <Dice5 className="w-7 h-7" strokeWidth={2.5} />
                 </button>
               </div>
             </div>
 
-            {/* 2. Big Preview Card */}
-            <div className="relative group">
-              <div className="aspect-square  border-4 border-black rounded-2xl overflow-hidden neo-shadow flex items-center justify-center relative">
-                {/* Background Decor */}
-                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-black to-transparent" />
+            {/* Avatar Preview Box */}
+            <div className="relative group mt-2">
+              <div className="aspect-square comic-border rounded-[2rem] overflow-hidden comic-shadow flex items-center justify-center relative bg-[#E0F2FE]">
+                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#00AEEF] to-transparent" />
                 
-                {/* The Avatar Image */}
                 <img 
                   src={currentAvatarUrl} 
                   alt="Preview" 
-                  className="w-4/5 h-4/5 object-contain drop-shadow-lg transition-transform duration-300 group-hover:scale-110"
+                  className="w-4/5 h-4/5 object-contain drop-shadow-xl transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3 z-10"
                 />
 
-                {/* Badge */}
-                <div className="absolute bottom-4 left-4 bg-white border-2 border-black px-3 py-1 rounded-full text-xs font-black shadow-[2px_2px_0px_0px_black]">
-                  PREVIEW
+                <div className="absolute -bottom-3 -right-3 bg-[#FFD166] comic-border px-4 py-2 rounded-xl text-sm font-black shadow-[4px_4px_0px_0px_#1e3a8a] rotate-[-10deg] z-20">
+                  PREVIEW 👀
                 </div>
               </div>
             </div>
 
-            {/* Save Button (Mobile: Bottom, Desktop: Here) */}
+            {/* Save Button */}
             <button 
               onClick={handleSave}
               disabled={isSaving}
-              className="w-full bg-black text-white border-2 border-black rounded-xl py-4 font-black text-xl uppercase tracking-widest flex items-center justify-center gap-3 neo-shadow transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none hover:bg-gray-900 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full mt-4 bg-[#FF69B4] text-white comic-border rounded-2xl py-4 font-black text-xl uppercase tracking-widest flex items-center justify-center gap-3 comic-shadow-btn transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#ff47a3] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>
-                  <RefreshCw className="animate-spin w-6 h-6" /> SAVING...
+                  <RefreshCw className="animate-spin w-6 h-6" strokeWidth={3} /> SAVING...
                 </>
               ) : (
                 <>
-                  LOCK IT IN <Save className="w-6 h-6" />
+                  LOCK IT IN <Save className="w-6 h-6" strokeWidth={3} />
                 </>
               )}
             </button>
-
           </div>
 
-          {/* RIGHT: STYLE SELECTOR GRID */}
+          {/* Right Column (Style Selection) */}
           <div className="w-full md:w-2/3 flex flex-col gap-6">
-            <div className="flex items-center justify-between border-b-4 border-black pb-4">
-              <h3 className="font-black text-2xl uppercase">Choose your vibe</h3>
-              <span className="bg-green-300 border-2 border-black px-2 py-1 text-xs font-bold rounded neo-shadow-sm">
+            <div className="flex items-center justify-between border-b-4 border-[#1e3a8a] pb-4">
+              <h3 className="font-black text-3xl uppercase tracking-tight">Choose your look</h3>
+              <span className="bg-[#34D399] comic-border px-3 py-1 text-sm font-black rounded-full comic-shadow-sm rotate-2">
                 {AVATAR_STYLES.length} STYLES
               </span>
             </div>
 
-            {/* Grid of Styles */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-5">
               {AVATAR_STYLES.map((style) => {
                 const isSelected = selectedStyle === style.id;
-                // Generate preview for this specific style using the same username
                 const previewUrl = `https://api.dicebear.com/7.x/${style.id}/svg?seed=${seedName}`;
 
                 return (
@@ -201,27 +218,26 @@ function AvatarSelectionPage(){
                     key={style.id}
                     onClick={() => setSelectedStyle(style.id)}
                     className={`
-                      cursor-pointer relative overflow-hidden rounded-xl border-2 transition-all duration-200
+                      cursor-pointer relative overflow-hidden rounded-2xl comic-border transition-all duration-300
                       ${isSelected 
-                        ? 'bg-blue-100 border-black ring-4 ring-black ring-offset-2 scale-[1.02] z-10' 
-                        : 'bg-white border-black hover:bg-gray-50 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_black]'
+                        ? 'bg-[#FFD166] active-style-ring scale-[1.05] z-10 shadow-none' 
+                        : 'bg-white hover:bg-[#f1f5f9] hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#1e3a8a]'
                       }
                     `}
                   >
-                    {/* Selection Indicator */}
                     {isSelected && (
-                      <div className="absolute top-2 right-2 bg-[#FCD34D] border-2 border-black rounded-full p-1 z-20">
-                        <Check className="w-3 h-3" strokeWidth={4} />
+                      <div className="absolute top-2 right-2 bg-[#FF69B4] text-white comic-border rounded-full p-1.5 z-20 shadow-[2px_2px_0px_#1e3a8a]">
+                        <Check className="w-4 h-4" strokeWidth={4} />
                       </div>
                     )}
 
                     <div className="p-4 flex flex-col items-center gap-3">
-                      <div className="w-20 h-20 rounded-full border-2 border-black bg-white overflow-hidden shadow-sm">
-                        <img src={previewUrl} alt={style.name} className="w-full h-full object-cover" />
+                      <div className="w-20 h-20 rounded-full comic-border bg-white overflow-hidden shadow-inner flex items-center justify-center">
+                        <img src={previewUrl} alt={style.name} className="w-[120%] h-[120%] object-cover" />
                       </div>
                       <div className="text-center">
-                        <h4 className="font-bold text-lg leading-tight">{style.name}</h4>
-                        <p className="text-xs font-bold text-gray-500 uppercase mt-1">{style.label}</p>
+                        <h4 className="font-black text-lg leading-tight text-[#1e3a8a]">{style.name}</h4>
+                        <p className="text-xs font-bold text-gray-500 uppercase mt-1 tracking-wider">{style.label}</p>
                       </div>
                     </div>
                   </div>
@@ -229,34 +245,31 @@ function AvatarSelectionPage(){
               })}
             </div>
 
-            {/* Info Box */}
-            <div className="bg-yellow-50 border-2 border-black border-dashed rounded-xl p-4 flex gap-4 items-start mt-4">
-              <div className="bg-black text-white p-2 rounded-lg">
-                <Zap className="w-5 h-5 text-[#FCD34D]" fill="#FCD34D" />
+            {/* Doraemon's Tip Area */}
+            <div className="bg-[#FFD166] comic-border rounded-2xl p-5 flex gap-4 items-start mt-4 comic-shadow-sm relative">
+              <div className="absolute -top-4 -left-4 bg-white comic-border rounded-full p-2 rotate-[-15deg] shadow-[2px_2px_0px_#1e3a8a]">
+                 <BellRing className="w-6 h-6 text-[#FF69B4]" strokeWidth={2.5} />
               </div>
-              <div>
-                <h5 className="font-bold text-lg">Pro Tip</h5>
-                <p className="font-medium text-gray-700 text-sm leading-relaxed">
-                  The generated avatar is deterministic. That means <b>"{seedName}"</b> will always look like this in the <b>{AVATAR_STYLES.find(s => s.id === selectedStyle)?.name}</b> dimension.
+              <div className="pl-6">
+                <h5 className="font-black text-xl uppercase mb-1">Doraemon's Tip 🐱</h5>
+                <p className="font-semibold text-[#1e3a8a] text-[15px] leading-relaxed">
+                  Your avatar is generated using 4D Pocket tech! The alias <b>"{seedName}"</b> will always look exactly like this in the <b>{AVATAR_STYLES.find(s => s.id === selectedStyle)?.name}</b> dimension.
                 </p>
               </div>
             </div>
 
           </div>
         </div>
-
       </main>
 
-      {/* --- FOOTER (Marquee for Consistency) --- */}
-      <div className="relative w-full overflow-hidden border-t-4 border-black bg-[#FCD34D] py-3 font-neo z-10">
-        <div className="animate-marquee flex gap-8 whitespace-nowrap text-lg font-black tracking-widest">
-          <span>PICK A FACE • DON'T BE SHY • MONGODB IS WAITING • NO SQL INJECTION PLZ • PICK A FACE • DON'T BE SHY •</span>
-          <span>PICK A FACE • DON'T BE SHY • MONGODB IS WAITING • NO SQL INJECTION PLZ • PICK A FACE • DON'T BE SHY •</span>
+      {/* --- MARQUEE BOTTOM BAR --- */}
+      <div className="relative w-full overflow-hidden comic-border border-x-0 border-b-0 bg-[#FF69B4] py-3 font-dora z-30 mt-auto">
+        <div className="animate-marquee flex gap-10 whitespace-nowrap text-xl font-black tracking-widest text-white">
+          <span>🚁 BAMBOO COPTER • NO RATS ALLOWED 🐭🚫 • TIME PATROL SECURE • GIAN IS WATCHING 🎤 • 🥞 DORAYAKI TOLL REQUIRED • </span>
+          <span>🚁 BAMBOO COPTER • NO RATS ALLOWED 🐭🚫 • TIME PATROL SECURE • GIAN IS WATCHING 🎤 • 🥞 DORAYAKI TOLL REQUIRED • </span>
         </div>
       </div>
 
     </div>
   );
 };
-
-export default AvatarSelectionPage;

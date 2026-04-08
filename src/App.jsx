@@ -13,7 +13,7 @@ function App() {
   const [user,setUser] = useState(JSON.parse(localStorage.getItem("userData")))
 
   useEffect(() => {
-    if(location.pathname !== "/healthChecker"){
+    if(location.pathname !== "/dm"){
     if(!userData){
       socket.on("connect",() => {
           setUser(prevUser => {

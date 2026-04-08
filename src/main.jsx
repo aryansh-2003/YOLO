@@ -10,6 +10,8 @@ import App from './App.jsx'
 import HealthChecker from './pages/HealthChecker.jsx'
 import LandingPage from './pages/LandingPage.jsx'
 import AvatarPage from './pages/AvatarPage.jsx'
+import DirectMessage from './pages/DirectMessage'
+import UserContextProvider from './context/UserContextProvider'
 
 
 
@@ -33,9 +35,13 @@ import AvatarPage from './pages/AvatarPage.jsx'
             path:`/setAvatar/:username/:name`,
             element:<AvatarPage/>
           },
-           {
+          {
             path:'/login',
             element:<Login/>
+          },
+           {
+            path:'/dm',
+            element:<DirectMessage/>
           },
           {
             path:'/healthChecker',
@@ -47,8 +53,9 @@ import AvatarPage from './pages/AvatarPage.jsx'
   )
 
 createRoot(document.getElementById('root')).render(
-    
+    <UserContextProvider>
     <Provider store={store}>
     <RouterProvider router={router} />
     </Provider>
+    </UserContextProvider>
 )
