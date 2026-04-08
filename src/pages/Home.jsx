@@ -14,13 +14,13 @@ const STATIC_ROOMS =[
 
 const HomePage = () => {
   const [inputText, setInputText] = useState("");
-  const[legends, setLegends] = useState([]);
+  const [legends, setLegends] = useState([]);
   const userData = useSelector((state) => state.auth.userData);
   const [messages, setMessages] = useState([]);
   const [loader, setLoader] = useState(true);
 
   const [showMobileRooms, setShowMobileRooms] = useState(false);
-  const[showMobileLegends, setShowMobileLegends] = useState(false);
+  const [showMobileLegends, setShowMobileLegends] = useState(false);
 
   useEffect(() => {
     if (!userData) return;
@@ -111,7 +111,7 @@ const HomePage = () => {
   }
 
   return (
-    <div className="h-screen w-full bg-[#87CEEB] font-sans text-[#1e3a8a] relative flex flex-col items-center p-0 md:p-6 overflow-hidden selection:bg-[#FFD166]">
+    <div className="h-[100dvh] w-full bg-[#87CEEB] font-sans text-[#1e3a8a] relative flex flex-col items-center p-0 md:p-6 overflow-hidden selection:bg-[#FFD166]">
       
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700;900&display=swap');
@@ -154,16 +154,16 @@ const HomePage = () => {
       <div className="absolute top-40 right-20 text-5xl opacity-60 animate-float-slow z-0 hidden lg:block drop-shadow-md" style={{animationDelay: '1s'}}>☁️</div>
       <div className="absolute bottom-10 left-20 text-6xl opacity-90 animate-float-slow z-0 hidden lg:block drop-shadow-md" style={{animationDelay: '2s'}}>🚁</div>
 
-=      <div className="relative z-10 w-full max-w-[95rem] grid grid-cols-1 md:grid-cols-12 gap-6 h-full pb-0 md:pb-2 font-dora">
+      <div className="relative z-10 w-full max-w-[95rem] grid grid-cols-1 md:grid-cols-12 gap-0 md:gap-6 h-full min-h-0 pb-0 md:pb-2 font-dora">
 
-        <div className="hidden md:flex md:col-span-3 flex-col h-full overflow-hidden bg-[#FFD166] comic-border rounded-[2rem] comic-shadow relative">
+        <div className="hidden md:flex md:col-span-3 flex-col h-full min-h-0 overflow-hidden bg-[#FFD166] comic-border rounded-[2rem] comic-shadow relative">
            <div className="absolute -top-4 -left-4 bg-white comic-border rounded-full p-2 rotate-[-15deg] shadow-[2px_2px_0px_#1e3a8a] z-10">
               <Sparkles className="w-6 h-6 text-[#FF69B4]" strokeWidth={2.5} />
            </div>
            <RoomsSidebar rooms={STATIC_ROOMS} />
         </div>
 
-        <div className="col-span-1 md:col-span-6 flex flex-col relative h-full overflow-hidden bg-white comic-border md:rounded-[2rem] md:comic-shadow z-20">
+        <div className="col-span-1 md:col-span-6 flex flex-col relative h-full min-h-0 w-full overflow-hidden bg-white comic-border border-y-0 border-x-0 md:border-y-4 md:border-x-4 md:rounded-[2rem] md:comic-shadow z-20">
           <ChatArea 
             messages={messages}
             inputText={inputText}
@@ -174,7 +174,7 @@ const HomePage = () => {
           />
         </div>
 
-        <div className="hidden md:flex md:col-span-3 flex-col h-full overflow-hidden bg-[#FFB5A7] comic-border rounded-[2rem] comic-shadow relative">
+        <div className="hidden md:flex md:col-span-3 flex-col h-full min-h-0 overflow-hidden bg-[#FFB5A7] comic-border rounded-[2rem] comic-shadow relative">
           <LegendsSidebar legends={legends} />
           <div className="absolute -bottom-6 -right-6 opacity-40 pointer-events-none">
              <img src="https://upload.wikimedia.org/wikipedia/en/b/bd/Doraemon_character.png" alt="Doraemon" className="w-48 blur-[1px]" />
@@ -183,7 +183,7 @@ const HomePage = () => {
 
       </div>
 
-=      <div className={`fixed inset-0 z-50 transform transition-transform duration-300 md:hidden font-dora ${showMobileRooms ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed inset-0 z-50 transform transition-transform duration-300 md:hidden font-dora ${showMobileRooms ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="absolute inset-0 bg-[#1e3a8a]/60 backdrop-blur-sm" onClick={() => setShowMobileRooms(false)} />
         <div className="absolute left-0 top-0 bottom-0 w-[85%] max-w-sm bg-[#FF69B4] border-r-4 border-[#1e3a8a] p-4 flex flex-col shadow-[8px_0_0_0_#1e3a8a]">
            
@@ -200,7 +200,7 @@ const HomePage = () => {
              </button>
            </div>
 
-           <div className="flex-1 overflow-y-auto bg-white rounded-2xl comic-border p-2">
+           <div className="flex-1 min-h-0 overflow-y-auto bg-white rounded-2xl comic-border p-2">
              <RoomsSidebar rooms={STATIC_ROOMS} isMobile={true} />
            </div>
         </div>
@@ -223,7 +223,7 @@ const HomePage = () => {
              </div>
            </div>
 
-           <div className="flex-1 overflow-y-auto bg-white rounded-2xl comic-border p-2">
+           <div className="flex-1 min-h-0 overflow-y-auto bg-white rounded-2xl comic-border p-2">
              <LegendsSidebar legends={legends} isMobile={true} />
            </div>
         </div>
