@@ -1,69 +1,268 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform, useSpring, useMotionValue, useAnimationFrame } from 'framer-motion';
+import Atropos from 'atropos/react';
+import 'atropos/css';
 import {
+  ArrowRight,
+  MessageCircle,
+  Users,
+  Globe,
+  Shield,
+  Zap,
   Sparkles,
-  Cloud,
-  Navigation,
-  Music,
-  Heart,
-  Gamepad2,
-  BookOpen,
-  Send,
-  DoorOpen,
-  BellRing,
+  Play,
   Volume2,
   VolumeX,
-  Zap,
-  Users,
-  MessageCircle,
-  Globe,
-  Eye,
-  Shield
+  ChevronDown
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import song from '../assets/doremon.mp3'
+import song from '../assets/doremon.mp3';
 
-// --- DORAEMON MOCK DATA ---
-const MOCK_CHARACTERS = [
-  { name: "Nobita_007", color: "bg-[#FFD166]", text: "text-yellow-900", avatar: "Felix" },
-  { name: "Gian_The_Boss", color: "bg-[#F4A261]", text: "text-orange-900", avatar: "Jack" },
-  { name: "Suneo_Rich", color: "bg-[#2A9D8F]", text: "text-teal-900", avatar: "Aneka" },
-  { name: "Shizuka_xoxo", color: "bg-[#FFB5A7]", text: "text-pink-900", avatar: "Jocelyn" },
-  { name: "Doraemon", color: "bg-[#00AEEF]", text: "text-blue-900", avatar: "Cuddles" },
-  { name: "Dorami_Cute", color: "bg-[#FFF3B0]", text: "text-yellow-800", avatar: "Molly" }
+// Floating 3D Element Component
+const Float3D = ({ children, delay = 0, duration = 6, y = 20, rotate = 5 }) => {
+  return (
+    <motion.div
+      animate={{
+        y: [-y, y, -y],
+        rotateX: [-rotate, rotate, -rotate],
+        rotateY: [rotate, -rotate, rotate],
+      }}
+      transition={{
+        duration,
+        delay,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }}
+      style={{ transformStyle: 'preserve-3d' }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// Magnetic Button Component
+const MagneticButton = ({ children, className, onClick }) => {
+  const ref = useRef(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const handleMouse = (e) => {
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    x.set((e.clientX - centerX) * 0.15);
+    y.set((e.clientY - centerY) * 0.15);
+  };
+
+  const reset = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.button
+      ref={ref}
+      onMouseMove={handleMouse}
+      onMouseLeave={reset}
+      style={{ x, y }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className={className}
+      onClick={onClick}
+    >
+      {children}
+    </motion.button>
+  );
+};
+
+// 3D Card Component
+const Card3D = ({ children, className, glowColor = "rgba(0, 174, 239, 0.3)" }) => {
+  const ref = useRef(null);
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+
+  const handleMouse = (e) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    rotateY.set((e.clientX - centerX) * 0.02);
+    rotateX.set((centerY - e.clientY) * 0.02);
+  };
+
+  const reset = () => {
+    rotateX.set(0);
+    rotateY.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouse}
+      onMouseLeave={reset}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: 'preserve-3d',
+      }}
+      whileHover={{
+        boxShadow: `0 25px 50px -12px ${glowColor}`,
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// Animated Counter
+const AnimatedCounter = ({ target, duration = 2 }) => {
+  const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+          let start = 0;
+          const increment = target / (duration * 60);
+          const timer = setInterval(() => {
+            start += increment;
+            if (start >= target) {
+              setCount(target);
+              clearInterval(timer);
+            } else {
+              setCount(Math.floor(start));
+            }
+          }, 1000 / 60);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [target, duration, hasAnimated]);
+
+  return <span ref={ref}>{count.toLocaleString()}</span>;
+};
+
+// Particle Field Background
+const ParticleField = () => {
+  const particles = Array.from({ length: 50 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 4 + 2,
+    duration: Math.random() * 20 + 10,
+    delay: Math.random() * 5,
+  }));
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full bg-white/20"
+          style={{
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: p.size,
+            height: p.size,
+          }}
+          animate={{
+            y: [-20, 20, -20],
+            opacity: [0.2, 0.8, 0.2],
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// Feature data
+const FEATURES = [
+  {
+    icon: Users,
+    title: "Connect Instantly",
+    description: "Meet fascinating people from around the world in real-time conversations",
+    gradient: "from-[#00AEEF] to-[#0077B6]",
+    delay: 0.1,
+  },
+  {
+    icon: MessageCircle,
+    title: "Lightning Fast",
+    description: "Experience seamless messaging with zero lag and instant delivery",
+    gradient: "from-[#FF69B4] to-[#E91E63]",
+    delay: 0.2,
+  },
+  {
+    icon: Globe,
+    title: "Global Reach",
+    description: "Join chat rooms spanning every timezone and culture imaginable",
+    gradient: "from-[#FFD166] to-[#F4A261]",
+    delay: 0.3,
+  },
+  {
+    icon: Shield,
+    title: "Privacy First",
+    description: "Your conversations stay yours with end-to-end encryption",
+    gradient: "from-[#2A9D8F] to-[#1E6F5C]",
+    delay: 0.4,
+  },
+  {
+    icon: Zap,
+    title: "Smart Matching",
+    description: "Our AI connects you with people who share your interests",
+    gradient: "from-[#9B59B6] to-[#6C3483]",
+    delay: 0.5,
+  },
+  {
+    icon: Sparkles,
+    title: "Rich Experience",
+    description: "Express yourself with reactions, GIFs, and custom themes",
+    gradient: "from-[#E74C3C] to-[#C0392B]",
+    delay: 0.6,
+  },
 ];
 
-const MOCK_MESSAGES = [
-  "DORAEMONNN!! Help me!! 😭",
-  "Who wants to come to my concert today? 🎤",
-  "My dad just bought me the newest video game! 🎮",
-  "Let's go study together, Nobita-kun. 📚",
-  "Where did my Dorayaki go?! 🥞",
-  "Quick, take the Anywhere Door! 🚪",
-  "I got a ZERO on my math test again... 📝",
-  "Take this! Bamboo Copter! 🚁",
-  "Suneo is showing off again... 🙄",
-  "I'm going to the future! ⏱️"
+// Stats data
+const STATS = [
+  { value: 50000, label: "Active Users", suffix: "+" },
+  { value: 120, label: "Countries", suffix: "+" },
+  { value: 99, label: "Uptime", suffix: "%" },
+  { value: 5, label: "Star Rating", suffix: "/5" },
 ];
 
 const LandingPage = () => {
-  // Initial messages
-  const [messages, setMessages] = useState([
-    { id: 1, name: "Doraemon", text: "Welcome to the 22nd Century Chat! 🐱🤖", avatarSeed: "Cuddles", bg: "bg-[#00AEEF]", textColor: "text-white" },
-    { id: 2, name: "Nobita_007", text: "Wow, a new gadget?! Can I use it to finish my homework?", avatarSeed: "Felix", bg: "bg-[#FFD166]", textColor: "text-yellow-900" },
-    { id: 3, name: "Shizuka_xoxo", text: "That sounds wonderful! Let's all chat nicely. 🌸", avatarSeed: "Jocelyn", bg: "bg-[#FFB5A7]", textColor: "text-pink-900" },
-    { id: 4, name: "Gian_The_Boss", text: "HEY! ANYONE WHO IGNORES MY MESSAGES GETS BEAT UP! 😡", avatarSeed: "Jack", bg: "bg-[#F4A261]", textColor: "text-orange-900" },
-  ]);
-
-  const [inputValue, setInputValue] = useState("");
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [showFeatures, setShowFeatures] = useState(false);
-  const [hoveredFeature, setHoveredFeature] = useState(null);
-  
-  const chatContainerRef = useRef(null);
-  const audioRef = useRef(null);
   const navigate = useNavigate();
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
+  const containerRef = useRef(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+  
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
 
-  // Audio Toggle Handler
+  const heroOpacity = useTransform(smoothProgress, [0, 0.2], [1, 0]);
+  const heroScale = useTransform(smoothProgress, [0, 0.2], [1, 0.9]);
+  const heroY = useTransform(smoothProgress, [0, 0.2], [0, -100]);
+
   const toggleAudio = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -75,480 +274,418 @@ const LandingPage = () => {
     }
   };
 
-  // Auto-scroll chat
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      const { scrollHeight, clientHeight } = chatContainerRef.current;
-      if (scrollHeight > clientHeight) {
-        chatContainerRef.current.scrollTo({
-          top: scrollHeight,
-          behavior: 'smooth'
-        });
-      }
-    }
-  }, [messages]);
-
-  // Simulate active chat
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const character = MOCK_CHARACTERS[Math.floor(Math.random() * MOCK_CHARACTERS.length)];
-      const randomMsg = MOCK_MESSAGES[Math.floor(Math.random() * MOCK_MESSAGES.length)];
-
-      const newMessage = {
-        id: Date.now(),
-        name: character.name,
-        text: randomMsg,
-        avatarSeed: character.avatar,
-        bg: character.color,
-        textColor: character.text
-      };
-
-      setMessages((prev) => {
-        const updated = [...prev, newMessage];
-        return updated.length > 50 ? updated.slice(updated.length - 50) : updated;
-      });
-
-    }, 3500);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowFeatures(true), 500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleSendMessage = () => {
-    if (inputValue.trim() === "") return;
-
-    const userMsg = {
-      id: Date.now(),
-      name: "YOU",
-      text: inputValue,
-      avatarSeed: "MyAvatar",
-      bg: "bg-white",
-      textColor: "text-black"
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setInputValue("");
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSendMessage();
-  };
-
   return (
-    <div className="relative w-full min-h-screen bg-gradient-to-b from-[#87CEEB] via-[#B0E0E6] to-[#E0F6FF] text-[#1e3a8a] font-sans overflow-hidden selection:bg-[#FFD166]">
+    <div 
+      ref={containerRef}
+      className="relative min-h-screen bg-[#0a0a1a] text-white overflow-x-hidden"
+      style={{ perspective: '1000px' }}
+    >
+      <audio ref={audioRef} src={song} loop />
       
-      <audio 
-        ref={audioRef} 
-        src={song} 
-        autoPlay
-        loop 
-      />
-
-      {/* Floating Music Button */}
-      <button 
-        onClick={toggleAudio}
-        className="fixed top-10 -right-0 z-50 flex h-14 w-14 items-center justify-center rounded-full comic-border bg-[#FF69B4] text-white comic-shadow transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:bg-[#ff47a3] md:top-40 md:right-8"
-        title={isPlaying ? "Pause Theme Song" : "Play Theme Song"}
-      >
-        {isPlaying ? (
-          <Volume2 className="h-7 w-7 animate-pulse" />
-        ) : (
-          <VolumeX className="h-7 w-7" />
-        )}
-      </button>
-
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
-        
-        .font-dora {
-          font-family: 'Fredoka', sans-serif;
-        }
-
-        /* Anime/Comic Style thick borders and shadows */
-        .comic-border {
-          border: 4px solid #1e3a8a;
-        }
-        
-        .comic-shadow {
-          box-shadow: 6px 6px 0px 0px #1e3a8a;
-        }
-        
-        .comic-shadow-sm {
-          box-shadow: 3px 3px 0px 0px #1e3a8a;
-        }
-        
-        .comic-shadow-hover:hover {
-          box-shadow: 0px 0px 0px 0px #1e3a8a;
-          transform: translate(6px, 6px);
-        }
-
-        /* Fun Polka Dot Background */
-        .bg-polka {
-          background-image: radial-gradient(#ffffff40 2px, transparent 2px);
-          background-size: 30px 30px;
-        }
-
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-
-        /* Custom Scrollbar for Chat */
-        .chat-scroll::-webkit-scrollbar {
-          width: 8px;
-        }
-        .chat-scroll::-webkit-scrollbar-track {
-          background: #f1f5f9;
-          border-radius: 10px;
-          border: 2px solid #1e3a8a;
-        }
-        .chat-scroll::-webkit-scrollbar-thumb {
-          background: #00AEEF;
-          border-radius: 10px;
-          border: 1px solid #1e3a8a;
-        }
-
-        @keyframes float {
-          0% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-15px) rotate(2deg); }
-          100% { transform: translateY(0px) rotate(0deg); }
-        }
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
-        }
-
-        @keyframes bob {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        .animate-bob {
-          animation: bob 3s ease-in-out infinite;
-        }
-
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-spin-slow {
-          animation: spin-slow 6s linear infinite;
-        }
-
-        @keyframes pulse-glow {
-          0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 102, 0.8); }
-          50% { box-shadow: 0 0 30px rgba(255, 215, 102, 1); }
-        }
-        .animate-pulse-glow {
-          animation: pulse-glow 2s ease-in-out infinite;
-        }
-
-        @keyframes float-cloud {
-          from { transform: translateX(100vw); }
-          to { transform: translateX(-20vw); }
-        }
-        .cloud-1 { animation: float-cloud 25s linear infinite; }
-        .cloud-2 { animation: float-cloud 35s linear infinite; animation-delay: -10s; }
-        .cloud-3 { animation: float-cloud 45s linear infinite; animation-delay: -20s; }
-
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          animation: marquee 15s linear infinite;
-        }
-
-        @keyframes slide-up {
-          from {
-            opacity: 0;
-            transform: translateY(40px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-slide-up {
-          animation: slide-up 0.6s ease-out forwards;
-        }
-
-        @keyframes scale-pop {
-          0% {
-            opacity: 0;
-            transform: scale(0.8);
-          }
-          50% {
-            transform: scale(1.05);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        .animate-scale-pop {
-          animation: scale-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-      `}</style>
-
-      {/* --- Animated Clouds Background --- */}
-      <div className="absolute top-10 left-0 text-white/80 cloud-1 z-0"><Cloud size={120} fill="currentColor" /></div>
-      <div className="absolute top-40 left-0 text-white/60 cloud-2 z-0 scale-75"><Cloud size={160} fill="currentColor" /></div>
-      <div className="absolute top-80 left-0 text-white/50 cloud-3 z-0 scale-150"><Cloud size={200} fill="currentColor" /></div>
-
-      <div className="absolute inset-0 bg-polka z-0 pointer-events-none" />
-
-      {/* --- Marquee Header --- */}
-      <div className="relative z-20 w-full overflow-hidden comic-border border-x-0 border-t-0 bg-[#FFD166] py-2 font-dora pr-20">
-        <div className="animate-marquee flex gap-8 whitespace-nowrap text-lg font-bold tracking-widest text-[#1e3a8a]">
-          <span>🚁 BAMBOO COPTER • 🚪 ANYWHERE DOOR • ⏱️ TIME MACHINE • 🥞 DORAYAKI • 🎒 4D POCKET • 🚁 BAMBOO COPTER • 🚪 ANYWHERE DOOR • ⏱️ TIME MACHINE • 🥞 DORAYAKI • 🎒 4D POCKET •</span>
-          <span>🚁 BAMBOO COPTER • 🚪 ANYWHERE DOOR • ⏱️ TIME MACHINE • 🥞 DORAYAKI • 🎒 4D POCKET • 🚁 BAMBOO COPTER • 🚪 ANYWHERE DOOR • ⏱️ TIME MACHINE • 🥞 DORAYAKI • 🎒 4D POCKET •</span>
-        </div>
+      {/* Gradient Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a1a] via-[#0d1b2a] to-[#1b263b]" />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#00AEEF]/10 rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#FF69B4]/10 rounded-full blur-[150px]" />
+        <div className="absolute top-1/2 left-1/2 w-[400px] h-[400px] bg-[#FFD166]/5 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2" />
       </div>
 
-      <main className="relative z-10 flex flex-col items-center justify-center px-4 pt-8 pb-16 font-dora min-h-screen">
-        
-        {/* --- Hero Section --- */}
-        <div className="mb-16 flex flex-col md:flex-row items-center justify-center gap-8 w-full max-w-5xl animate-slide-up">
-          
-          <div className="text-center md:text-left flex-1 relative">
-            <div className="absolute -top-6 -left-6 bg-white rounded-full p-2 comic-border comic-shadow-sm rotate-[-15deg] z-10 animate-bob">
-              <Sparkles className="text-[#FFD166] h-8 w-8" fill="#FFD166" />
-            </div>
-            
-            <h1 className="text-5xl font-black tracking-tight md:text-7xl text-white comic-border text-shadow drop-shadow-[0_4px_4px_rgba(30,58,138,1)]" style={{ WebkitTextStroke: '2px #1e3a8a' }}>
-              ENTER THE <br/>
-              <span className="inline-block transform -rotate-2 bg-[#FF69B4] px-4 py-1 text-white comic-border comic-shadow mt-2 hover:rotate-0 transition-transform duration-300">
-                Gadget World!
-              </span>
-            </h1>
-            <p className="mt-6 text-xl font-bold text-[#1e3a8a] bg-white/90 inline-block px-4 py-2 rounded-2xl comic-border backdrop-blur-sm hover:bg-white transition-colors">
-              Chat across time and space. No giant rats allowed. 🐭🚫
-            </p>
-            
-            <div className="mt-8">
-              <button onClick={() => navigate('/login')} className="group flex items-center gap-3 rounded-full comic-border bg-[#FF69B4] px-8 py-4 text-2xl font-bold text-white transition-all comic-shadow comic-shadow-hover hover:bg-[#ff47a3] animate-pulse">
-                <DoorOpen className="h-8 w-8 transition-transform group-hover:-rotate-12" />
-                OPEN ANYWHERE DOOR
-              </button>
-            </div>
-          </div>
+      <ParticleField />
 
-          {/* Floating Doraemon PNG */}
-          <div className="flex-1 flex justify-center md:justify-end animate-float relative z-20">
-             <div className="relative">
-                {/* Decorative Bell Behind */}
-                <div className="absolute top-10 -left-10 bg-[#FFD166] h-16 w-16 rounded-full comic-border comic-shadow-sm flex items-center justify-center -z-10 animate-pulse">
-                  <BellRing className="text-[#1e3a8a] h-8 w-8" />
-                </div>
-                <img 
-                  src="https://upload.wikimedia.org/wikipedia/en/b/bd/Doraemon_character.png" 
-                  alt="Doraemon" 
-                  className="w-[280px] md:w-[350px] drop-shadow-[8px_8px_0_rgba(30,58,138,0.3)] hover:scale-110 transition-transform duration-300"
-                />
-             </div>
-          </div>
-        </div>
+      {/* Music Toggle */}
+      <motion.button
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 1 }}
+        onClick={toggleAudio}
+        className="fixed top-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-white hover:bg-white/20 transition-all duration-300"
+      >
+        {isPlaying ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
+      </motion.button>
 
-        {/* --- Features Section --- */}
-        <div className="w-full max-w-6xl mb-16">
-          <h2 className="text-4xl font-black text-center mb-12 text-[#1e3a8a] drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]" style={{ WebkitTextStroke: '1px #1e3a8a' }}>
-            Amazing Features 🌟
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {showFeatures && [
-              { icon: <Users size={32} />, title: "Meet New Friends", desc: "Connect with random people around the world instantly", delay: "0s", color: "#FF69B4" },
-              { icon: <MessageCircle size={32} />, title: "Real-time Chat", desc: "Lightning-fast messaging with live updates", delay: "0.1s", color: "#00AEEF" },
-              { icon: <Globe size={32} />, title: "Global Community", desc: "Chat rooms and direct messages across the globe", delay: "0.2s", color: "#2A9D8F" },
-              { icon: <Eye size={32} />, title: "Browse Anonymously", desc: "Explore chat rooms without pressure", delay: "0.3s", color: "#FFD166" },
-              { icon: <Shield size={32} />, title: "Safe & Respectful", desc: "Community guidelines keep everyone safe", delay: "0.4s", color: "#F4A261" },
-              { icon: <Sparkles size={32} />, title: "Fun & Engaging", desc: "Enjoy emojis, animations, and interactive features", delay: "0.5s", color: "#FFB5A7" },
-            ].map((feature, idx) => (
-              <div
-                key={idx}
-                style={{ 
-                  animation: `scale-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
-                  animationDelay: feature.delay
-                }}
-                onMouseEnter={() => setHoveredFeature(idx)}
-                onMouseLeave={() => setHoveredFeature(null)}
-                className="group relative rounded-3xl comic-border p-6 bg-white transition-all duration-300 hover:translate-y-[-8px] hover:comic-shadow cursor-pointer"
+      {/* Navigation */}
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="fixed top-0 left-0 right-0 z-40 px-6 py-4"
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <motion.div 
+            className="flex items-center gap-3"
+            whileHover={{ scale: 1.05 }}
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00AEEF] to-[#0077B6] flex items-center justify-center shadow-lg shadow-[#00AEEF]/30">
+              <span className="text-xl font-bold">D</span>
+            </div>
+            <span className="text-xl font-semibold tracking-tight">DoraChat</span>
+          </motion.div>
+
+          <div className="hidden md:flex items-center gap-8">
+            {['Features', 'Community', 'About'].map((item) => (
+              <motion.a
+                key={item}
+                href={`#${item.toLowerCase()}`}
+                className="text-sm font-medium text-white/70 hover:text-white transition-colors relative group"
+                whileHover={{ y: -2 }}
               >
-                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: `linear-gradient(135deg, ${feature.color}20, transparent)` }}></div>
-                
-                <div className="relative z-10">
-                  <div className="inline-block p-3 rounded-2xl comic-border mb-4 transition-all" style={{ backgroundColor: feature.color + "30", borderColor: feature.color }}>
-                    <div style={{ color: feature.color }} className="transition-transform group-hover:scale-110">
-                      {feature.icon}
+                {item}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#00AEEF] to-[#FF69B4] group-hover:w-full transition-all duration-300" />
+              </motion.a>
+            ))}
+          </div>
+
+          <MagneticButton
+            onClick={() => navigate('/login')}
+            className="px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-sm font-medium hover:bg-white/20 transition-all duration-300"
+          >
+            Get Started
+          </MagneticButton>
+        </div>
+      </motion.nav>
+
+      {/* Hero Section */}
+      <motion.section 
+        style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
+        className="relative min-h-screen flex items-center justify-center px-6 pt-20"
+      >
+        <div className="max-w-7xl mx-auto w-full">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            
+            {/* Left Content */}
+            <div className="space-y-8">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm"
+              >
+                <span className="w-2 h-2 rounded-full bg-[#00AEEF] animate-pulse" />
+                <span className="text-sm font-medium text-white/70">10,000+ online now</span>
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.1 }}
+                className="text-5xl md:text-7xl font-bold leading-[1.1] tracking-tight"
+              >
+                <span className="block">Connect with</span>
+                <span className="block mt-2">
+                  <span className="bg-gradient-to-r from-[#00AEEF] via-[#FF69B4] to-[#FFD166] bg-clip-text text-transparent">
+                    anyone, anywhere
+                  </span>
+                </span>
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-lg md:text-xl text-white/60 max-w-lg leading-relaxed"
+              >
+                Experience the magic of spontaneous conversations. Meet new friends, 
+                share stories, and explore connections that transcend borders.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="flex flex-wrap items-center gap-4"
+              >
+                <MagneticButton
+                  onClick={() => navigate('/login')}
+                  className="group px-8 py-4 rounded-full bg-gradient-to-r from-[#00AEEF] to-[#0077B6] text-white font-semibold text-lg shadow-lg shadow-[#00AEEF]/30 hover:shadow-[#00AEEF]/50 transition-all duration-300 flex items-center gap-3"
+                >
+                  Start Chatting
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </MagneticButton>
+
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-4 rounded-full border border-white/20 text-white font-medium text-lg hover:bg-white/5 transition-all duration-300 flex items-center gap-3"
+                >
+                  <Play className="w-5 h-5" />
+                  Watch Demo
+                </motion.button>
+              </motion.div>
+
+              {/* Trust Badges */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="flex items-center gap-6 pt-4"
+              >
+                <div className="flex -space-x-3">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div
+                      key={i}
+                      className="w-10 h-10 rounded-full border-2 border-[#0a0a1a] bg-gradient-to-br from-[#00AEEF] to-[#FF69B4] flex items-center justify-center text-xs font-bold"
+                      style={{ zIndex: 5 - i }}
+                    >
+                      {String.fromCharCode(65 + i - 1)}
+                    </div>
+                  ))}
+                </div>
+                <div className="text-sm">
+                  <span className="font-semibold text-white">50,000+</span>
+                  <span className="text-white/60"> happy users</span>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Right - 3D Chat Preview */}
+            <motion.div
+              initial={{ opacity: 0, x: 50, rotateY: -15 }}
+              animate={{ opacity: 1, x: 0, rotateY: 0 }}
+              transition={{ duration: 1, delay: 0.4 }}
+              className="relative hidden lg:block"
+            >
+              <Atropos
+                className="atropos-banner"
+                shadow={false}
+                highlight={false}
+                rotateXMax={15}
+                rotateYMax={15}
+              >
+                <div className="relative w-full aspect-square max-w-[500px] mx-auto">
+                  {/* Main Chat Window */}
+                  <div 
+                    data-atropos-offset="5"
+                    className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 p-6 shadow-2xl"
+                  >
+                    {/* Chat Header */}
+                    <div className="flex items-center gap-4 pb-4 border-b border-white/10">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#00AEEF] to-[#0077B6] flex items-center justify-center">
+                        <span className="text-xl">D</span>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">Global Chat</h3>
+                        <p className="text-sm text-white/50">1,234 online</p>
+                      </div>
+                      <div className="ml-auto flex gap-2">
+                        <div className="w-3 h-3 rounded-full bg-[#2A9D8F]" />
+                      </div>
+                    </div>
+
+                    {/* Chat Messages */}
+                    <div className="space-y-4 py-6">
+                      {[
+                        { name: "Alex", msg: "Hey everyone! Just joined", color: "#00AEEF" },
+                        { name: "Mika", msg: "Welcome to the community!", color: "#FF69B4" },
+                        { name: "Sam", msg: "This app is amazing", color: "#FFD166" },
+                      ].map((chat, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 1 + i * 0.3 }}
+                          className="flex items-start gap-3"
+                        >
+                          <div 
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                            style={{ background: `linear-gradient(135deg, ${chat.color}, ${chat.color}80)` }}
+                          >
+                            {chat.name[0]}
+                          </div>
+                          <div className="bg-white/10 rounded-2xl rounded-tl-sm px-4 py-2">
+                            <p className="text-sm text-white/90">{chat.msg}</p>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    {/* Input */}
+                    <div className="mt-auto pt-4 border-t border-white/10">
+                      <div className="flex items-center gap-3 bg-white/5 rounded-full px-4 py-3">
+                        <input
+                          type="text"
+                          placeholder="Type a message..."
+                          className="flex-1 bg-transparent text-sm placeholder:text-white/30 outline-none"
+                          readOnly
+                        />
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#00AEEF] to-[#0077B6] flex items-center justify-center">
+                          <ArrowRight className="w-4 h-4" />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  
-                  <h3 className="text-2xl font-black text-[#1e3a8a] mb-2">{feature.title}</h3>
-                  <p className="text-base font-semibold text-gray-600">{feature.desc}</p>
+
+                  {/* Floating Elements */}
+                  <Float3D delay={0} y={15}>
+                    <div 
+                      data-atropos-offset="10"
+                      className="absolute -top-8 -right-8 w-20 h-20 rounded-2xl bg-gradient-to-br from-[#FFD166] to-[#F4A261] flex items-center justify-center shadow-lg shadow-[#FFD166]/30"
+                    >
+                      <Sparkles className="w-10 h-10 text-white" />
+                    </div>
+                  </Float3D>
+
+                  <Float3D delay={1} y={12}>
+                    <div 
+                      data-atropos-offset="8"
+                      className="absolute -bottom-6 -left-6 w-16 h-16 rounded-xl bg-gradient-to-br from-[#FF69B4] to-[#E91E63] flex items-center justify-center shadow-lg shadow-[#FF69B4]/30"
+                    >
+                      <MessageCircle className="w-8 h-8 text-white" />
+                    </div>
+                  </Float3D>
+
+                  <Float3D delay={2} y={10}>
+                    <div 
+                      data-atropos-offset="12"
+                      className="absolute top-1/4 -left-10 w-14 h-14 rounded-full bg-gradient-to-br from-[#2A9D8F] to-[#1E6F5C] flex items-center justify-center shadow-lg shadow-[#2A9D8F]/30"
+                    >
+                      <Globe className="w-7 h-7 text-white" />
+                    </div>
+                  </Float3D>
                 </div>
-              </div>
+              </Atropos>
+            </motion.div>
+          </div>
+
+          {/* Scroll Indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5 }}
+            className="absolute bottom-10 left-1/2 -translate-x-1/2"
+          >
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="flex flex-col items-center gap-2 text-white/40"
+            >
+              <span className="text-xs font-medium tracking-widest uppercase">Scroll to explore</span>
+              <ChevronDown className="w-5 h-5" />
+            </motion.div>
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* Stats Section */}
+      <section className="relative py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {STATS.map((stat, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                viewport={{ once: true }}
+                className="text-center"
+              >
+                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
+                  <AnimatedCounter target={stat.value} />
+                  {stat.suffix}
+                </div>
+                <p className="mt-2 text-white/50 font-medium">{stat.label}</p>
+              </motion.div>
             ))}
           </div>
         </div>
+      </section>
 
-        {/* --- Chat Interface Layout --- */}
-        <div className="relative flex h-[600px] w-full max-w-6xl flex-col overflow-hidden rounded-3xl comic-border bg-[#f8fafc] md:flex-row comic-shadow animate-slide-up" style={{ animationDelay: "0.3s" }}>
-          
-          {/* Left Sidebar - Gadget Rooms */}
-          <div className="no-scrollbar hidden w-full flex-col gap-4 overflow-y-auto comic-border border-y-0 border-l-0 border-r-4 bg-[#FFD166] p-4 md:flex md:w-[28%]">
-            <div className="bg-white comic-border rounded-2xl p-2 mb-2 comic-shadow-sm text-center">
-              <h3 className="text-xl font-black uppercase text-[#1e3a8a]">
-                Locations 📍
-              </h3>
-            </div>
-            <RoomItem icon={<Navigation fill="currentColor"/>} name="Nobita's Room" active />
-            <RoomItem icon={<Gamepad2 fill="currentColor"/>} name="The Empty Lot" />
-            <RoomItem icon={<Cloud fill="currentColor"/>} name="Time Machine" />
-            <RoomItem icon={<BookOpen fill="currentColor"/>} name="School Roof" />
-            <RoomItem icon={<Music fill="currentColor"/>} name="Gian's Concert" />
-            
-            <div className="mt-auto bg-white/50 rounded-2xl p-4 comic-border comic-shadow-sm hover:bg-white transition-colors">
-               <p className="text-sm font-bold text-center">Don't forget your 🥞 Dorayaki toll!</p>
-            </div>
-          </div>
+      {/* Features Section */}
+      <section id="features" className="relative py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              Everything you need
+            </h2>
+            <p className="text-lg text-white/50 max-w-2xl mx-auto">
+              Powerful features designed to make your conversations more meaningful and engaging
+            </p>
+          </motion.div>
 
-          {/* Center - Main Chat */}
-          <div className="relative flex flex-1 flex-col bg-white">
-            
-            {/* Chat Header */}
-            <div className="flex items-center justify-between gap-4 comic-border border-x-0 border-t-0 bg-white p-4">
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full comic-border overflow-hidden bg-[#00AEEF] flex items-center justify-center comic-shadow-sm">
-                  <Navigation className="text-white h-6 w-6" fill="white" />
-                </div>
-                <div>
-                  <h2 className="font-black text-xl leading-tight">Nobita's Room</h2>
-                  <p className="text-sm font-semibold text-gray-500">22nd Century Connection Active</p>
-                </div>
-              </div>
-              <span className="rounded-full comic-border bg-[#00AEEF] text-white px-4 py-1.5 text-sm font-bold comic-shadow-sm flex items-center gap-2 animate-pulse-glow">
-                 <Zap className="h-4 w-4" fill="white" /> Active Now
-              </span>
-            </div>
-
-            {/* Chat Messages */}
-            <div 
-              ref={chatContainerRef}
-              className="flex flex-1 flex-col gap-6 overflow-y-auto p-6 chat-scroll bg-[#E0F2FE] relative"
-            >
-              {/* Subtle watermark background */}
-              <div className="absolute inset-0 pointer-events-none opacity-5 flex items-center justify-center">
-                 <BellRing size={300} />
-              </div>
-
-              {messages.map((msg) => (
-                <Message 
-                  key={msg.id}
-                  label={msg.name} 
-                  text={msg.text} 
-                  avatarSeed={msg.avatarSeed} 
-                  bg={msg.bg} 
-                  textColor={msg.textColor || "text-[#1e3a8a]"}
-                  isSelf={msg.name === "YOU"}
-                />
-              ))}
-            </div>
-
-            {/* Chat Input - 4D Pocket Theme */}
-            <div className="flex flex-col gap-2 comic-border border-x-0 border-b-0 bg-white p-4 relative">
-               {/* 4D Pocket Design Element */}
-               <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-32 h-6 bg-white comic-border rounded-b-full border-t-0 z-10 flex justify-center items-center">
-                 <div className="w-16 h-1 bg-gray-200 rounded-full"></div>
-               </div>
-
-              <div className="flex gap-3 items-end mt-2">
-                <div className="flex-1 relative">
-                  <input 
-                    type="text" 
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Reach into the 4D Pocket and type..." 
-                    className="w-full rounded-2xl comic-border px-5 py-4 font-semibold outline-none placeholder:text-gray-400 focus:bg-[#E0F2FE] transition-colors text-lg"
-                  />
-                </div>
-                <button 
-                  onClick={handleSendMessage}
-                  className="group flex h-16 w-16 items-center justify-center rounded-2xl comic-border bg-[#00AEEF] transition-all comic-shadow-sm hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none active:bg-[#008ccc] hover:bg-[#0099dd]"
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {FEATURES.map((feature, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: feature.delay }}
+                viewport={{ once: true }}
+              >
+                <Card3D
+                  glowColor={feature.gradient.includes('#00AEEF') ? 'rgba(0, 174, 239, 0.2)' : feature.gradient.includes('#FF69B4') ? 'rgba(255, 105, 180, 0.2)' : 'rgba(255, 209, 102, 0.2)'}
+                  className="group h-full p-8 rounded-3xl bg-gradient-to-br from-white/[0.08] to-white/[0.02] border border-white/10 hover:border-white/20 transition-all duration-500 cursor-pointer"
                 >
-                  <Send className="h-7 w-7 text-white transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Sidebar - Friends */}
-          <div className="hidden w-[25%] flex-col gap-4 comic-border border-y-0 border-r-0 border-l-4 bg-[#FFB5A7] p-4 lg:flex">
-            <div className="bg-white comic-border rounded-2xl p-2 mb-2 comic-shadow-sm text-center">
-              <h3 className="text-xl font-black uppercase text-[#1e3a8a]">
-                Friends 🐱
-              </h3>
-            </div>
-            <UserCard name="Nobita" status="Crying" color="bg-[#FFD166]" emoji="😭" />
-            <UserCard name="Shizuka" status="Bathing" color="bg-[#FFB5A7]" emoji="🛁" />
-            <UserCard name="Gian" status="Singing" color="bg-[#F4A261]" emoji="🎤" />
-            <UserCard name="Suneo" status="Flexing" color="bg-[#2A9D8F]" emoji="💸" />
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <feature.icon className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                  <p className="text-white/50 leading-relaxed">{feature.description}</p>
+                </Card3D>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* CTA Section */}
+      <section className="relative py-32 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="relative p-12 md:p-16 rounded-[2.5rem] bg-gradient-to-br from-white/10 to-white/5 border border-white/10 backdrop-blur-xl overflow-hidden"
+          >
+            {/* Background Glow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#00AEEF]/20 via-[#FF69B4]/20 to-[#FFD166]/20 blur-3xl" />
+            
+            <div className="relative z-10">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                Ready to start chatting?
+              </h2>
+              <p className="text-lg text-white/60 mb-10 max-w-xl mx-auto">
+                Join thousands of people already connecting on DoraChat. 
+                Your next great conversation is just a click away.
+              </p>
+              <MagneticButton
+                onClick={() => navigate('/login')}
+                className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-white text-[#0a0a1a] font-semibold text-lg shadow-xl shadow-white/20 hover:shadow-white/30 transition-all duration-300"
+              >
+                Get Started Free
+                <ArrowRight className="w-5 h-5" />
+              </MagneticButton>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="relative py-12 px-6 border-t border-white/10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00AEEF] to-[#0077B6] flex items-center justify-center">
+              <span className="text-sm font-bold">D</span>
+            </div>
+            <span className="font-semibold">DoraChat</span>
+          </div>
+          <p className="text-sm text-white/40">
+            Made with care for meaningful connections
+          </p>
+          <div className="flex items-center gap-6">
+            {['Privacy', 'Terms', 'Support'].map((item) => (
+              <a key={item} href="#" className="text-sm text-white/50 hover:text-white transition-colors">
+                {item}
+              </a>
+            ))}
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
-
-// Subcomponents
-
-const RoomItem = ({ icon, name, active }) => (
-  <div className={`flex cursor-pointer items-center gap-3 rounded-2xl comic-border p-3 transition-all hover:-translate-y-1 hover:comic-shadow-sm ${active ? 'bg-white comic-shadow-sm scale-105' : 'bg-[#FFe499] hover:bg-white'}`}>
-    <span className={`flex h-10 w-10 items-center justify-center rounded-xl comic-border transition-transform ${active ? 'bg-[#FF69B4] text-white animate-spin-slow' : 'bg-white text-[#1e3a8a] group-hover:scale-110'}`}>
-      {icon}
-    </span>
-    <span className="font-bold text-[17px]">{name}</span>
-  </div>
-);
-
-const Message = ({ text, bg, avatarSeed, label, textColor, isSelf }) => (
-  <div className={`flex items-end gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500 z-10 ${isSelf ? 'flex-row-reverse' : 'flex-row'}`}>
-    
-    {!isSelf && (
-      <div className={`h-12 w-12 flex-shrink-0 overflow-hidden rounded-full comic-border ${bg} comic-shadow-sm transition-transform hover:scale-110 cursor-pointer`}>
-        <img src={`https://api.dicebear.com/7.x/adventurer/svg?seed=${avatarSeed}&backgroundColor=transparent`} alt="avatar" className="h-full w-full object-cover scale-110 translate-y-1"/>
-      </div>
-    )}
-
-    <div className={`flex flex-col max-w-[75%] ${isSelf ? 'items-end' : 'items-start'}`}>
-      {!isSelf && <span className="ml-2 mb-1 text-sm font-black text-[#1e3a8a]">{label}</span>}
-      <div className={`relative rounded-3xl comic-border px-5 py-3 comic-shadow-sm transition-all hover:shadow-lg ${isSelf ? 'rounded-br-sm bg-[#00AEEF] text-white' : `rounded-bl-sm ${bg} ${textColor}`}`}>
-        <p className="font-bold text-base md:text-[17px] leading-snug break-words">{text}</p>
-        
-        {/* Cartoon Speech Bubble Tail */}
-        <div className={`absolute bottom-0 w-4 h-4 comic-border border-t-0 ${isSelf ? '-right-2 border-l-0 border-b-0 bg-[#00AEEF] rounded-br-2xl' : '-left-2 border-r-0 border-b-0 bg-transparent rounded-bl-2xl'}`} style={{ clipPath: isSelf ? 'polygon(0 0, 100% 100%, 0 100%)' : 'polygon(100% 0, 100% 100%, 0 100%)', transform: isSelf ? 'translateY(10px) rotate(-15deg)' : 'translateY(10px) rotate(15deg)' }}></div>
-      </div>
-    </div>
-  </div>
-);
-
-const UserCard = ({ name, status, color, emoji }) => (
-  <div className="group flex items-center gap-3 rounded-2xl comic-border p-3 bg-white transition-all hover:-translate-y-1 hover:comic-shadow-sm cursor-pointer hover:bg-[#fef3f0]">
-    <div className={`relative h-12 w-12 rounded-full comic-border ${color} flex items-center justify-center text-xl transition-transform group-hover:scale-110 group-hover:animate-spin-slow`}>
-      {emoji}
-      <div className="absolute bottom-0 right-0 h-4 w-4 rounded-full comic-border bg-[#34d399] animate-pulse"></div>
-    </div>
-    <div className="flex-1">
-      <p className="text-[17px] font-black text-[#1e3a8a] leading-tight">{name}</p>
-      <p className="text-sm font-bold text-gray-500">{status}</p>
-    </div>
-  </div>
-);
 
 export default LandingPage;
