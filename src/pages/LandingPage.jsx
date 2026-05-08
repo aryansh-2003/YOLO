@@ -11,7 +11,13 @@ import {
   DoorOpen,
   BellRing,
   Volume2,
-  VolumeX
+  VolumeX,
+  Zap,
+  Users,
+  MessageCircle,
+  Globe,
+  Eye,
+  Shield
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import song from '../assets/doremon.mp3'
@@ -50,6 +56,8 @@ const LandingPage = () => {
 
   const [inputValue, setInputValue] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showFeatures, setShowFeatures] = useState(false);
+  const [hoveredFeature, setHoveredFeature] = useState(null);
   
   const chatContainerRef = useRef(null);
   const audioRef = useRef(null);
@@ -78,9 +86,6 @@ const LandingPage = () => {
         });
       }
     }
-
-
-    
   }, [messages]);
 
   // Simulate active chat
@@ -108,6 +113,11 @@ const LandingPage = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setShowFeatures(true), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleSendMessage = () => {
     if (inputValue.trim() === "") return;
 
@@ -129,7 +139,7 @@ const LandingPage = () => {
   };
 
   return (
-      <div className="relative w-full min-h-screen bg-[#87CEEB] text-[#1e3a8a] font-sans overflow-hidden selection:bg-[#FFD166]">
+    <div className="relative w-full min-h-screen bg-gradient-to-b from-[#87CEEB] via-[#B0E0E6] to-[#E0F6FF] text-[#1e3a8a] font-sans overflow-hidden selection:bg-[#FFD166]">
       
       <audio 
         ref={audioRef} 
@@ -214,6 +224,30 @@ const LandingPage = () => {
           animation: float 4s ease-in-out infinite;
         }
 
+        @keyframes bob {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        .animate-bob {
+          animation: bob 3s ease-in-out infinite;
+        }
+
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 6s linear infinite;
+        }
+
+        @keyframes pulse-glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 102, 0.8); }
+          50% { box-shadow: 0 0 30px rgba(255, 215, 102, 1); }
+        }
+        .animate-pulse-glow {
+          animation: pulse-glow 2s ease-in-out infinite;
+        }
+
         @keyframes float-cloud {
           from { transform: translateX(100vw); }
           to { transform: translateX(-20vw); }
@@ -228,6 +262,37 @@ const LandingPage = () => {
         }
         .animate-marquee {
           animation: marquee 15s linear infinite;
+        }
+
+        @keyframes slide-up {
+          from {
+            opacity: 0;
+            transform: translateY(40px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-slide-up {
+          animation: slide-up 0.6s ease-out forwards;
+        }
+
+        @keyframes scale-pop {
+          0% {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .animate-scale-pop {
+          animation: scale-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
       `}</style>
 
@@ -249,25 +314,25 @@ const LandingPage = () => {
       <main className="relative z-10 flex flex-col items-center justify-center px-4 pt-8 pb-16 font-dora min-h-screen">
         
         {/* --- Hero Section --- */}
-        <div className="mb-10 flex flex-col md:flex-row items-center justify-center gap-8 w-full max-w-5xl">
+        <div className="mb-16 flex flex-col md:flex-row items-center justify-center gap-8 w-full max-w-5xl animate-slide-up">
           
           <div className="text-center md:text-left flex-1 relative">
-            <div className="absolute -top-6 -left-6 bg-white rounded-full p-2 comic-border comic-shadow-sm rotate-[-15deg] z-10">
+            <div className="absolute -top-6 -left-6 bg-white rounded-full p-2 comic-border comic-shadow-sm rotate-[-15deg] z-10 animate-bob">
               <Sparkles className="text-[#FFD166] h-8 w-8" fill="#FFD166" />
             </div>
             
             <h1 className="text-5xl font-black tracking-tight md:text-7xl text-white comic-border text-shadow drop-shadow-[0_4px_4px_rgba(30,58,138,1)]" style={{ WebkitTextStroke: '2px #1e3a8a' }}>
               ENTER THE <br/>
-              <span className="inline-block transform -rotate-2 bg-[#FF69B4] px-4 py-1 text-white comic-border comic-shadow mt-2">
+              <span className="inline-block transform -rotate-2 bg-[#FF69B4] px-4 py-1 text-white comic-border comic-shadow mt-2 hover:rotate-0 transition-transform duration-300">
                 Gadget World!
               </span>
             </h1>
-            <p className="mt-6 text-xl font-bold text-[#1e3a8a] bg-white/80 inline-block px-4 py-2 rounded-2xl comic-border">
+            <p className="mt-6 text-xl font-bold text-[#1e3a8a] bg-white/90 inline-block px-4 py-2 rounded-2xl comic-border backdrop-blur-sm hover:bg-white transition-colors">
               Chat across time and space. No giant rats allowed. 🐭🚫
             </p>
             
             <div className="mt-8">
-              <button onClick={() => navigate('/login')} className="group flex items-center gap-3 rounded-full comic-border bg-[#FF69B4] px-8 py-4 text-2xl font-bold text-white transition-all comic-shadow comic-shadow-hover hover:bg-[#ff47a3]">
+              <button onClick={() => navigate('/login')} className="group flex items-center gap-3 rounded-full comic-border bg-[#FF69B4] px-8 py-4 text-2xl font-bold text-white transition-all comic-shadow comic-shadow-hover hover:bg-[#ff47a3] animate-pulse">
                 <DoorOpen className="h-8 w-8 transition-transform group-hover:-rotate-12" />
                 OPEN ANYWHERE DOOR
               </button>
@@ -284,14 +349,56 @@ const LandingPage = () => {
                 <img 
                   src="https://upload.wikimedia.org/wikipedia/en/b/bd/Doraemon_character.png" 
                   alt="Doraemon" 
-                  className="w-[280px] md:w-[350px] drop-shadow-[8px_8px_0_rgba(30,58,138,0.3)]"
+                  className="w-[280px] md:w-[350px] drop-shadow-[8px_8px_0_rgba(30,58,138,0.3)] hover:scale-110 transition-transform duration-300"
                 />
              </div>
           </div>
         </div>
 
+        {/* --- Features Section --- */}
+        <div className="w-full max-w-6xl mb-16">
+          <h2 className="text-4xl font-black text-center mb-12 text-[#1e3a8a] drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]" style={{ WebkitTextStroke: '1px #1e3a8a' }}>
+            Amazing Features 🌟
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {showFeatures && [
+              { icon: <Users size={32} />, title: "Meet New Friends", desc: "Connect with random people around the world instantly", delay: "0s", color: "#FF69B4" },
+              { icon: <MessageCircle size={32} />, title: "Real-time Chat", desc: "Lightning-fast messaging with live updates", delay: "0.1s", color: "#00AEEF" },
+              { icon: <Globe size={32} />, title: "Global Community", desc: "Chat rooms and direct messages across the globe", delay: "0.2s", color: "#2A9D8F" },
+              { icon: <Eye size={32} />, title: "Browse Anonymously", desc: "Explore chat rooms without pressure", delay: "0.3s", color: "#FFD166" },
+              { icon: <Shield size={32} />, title: "Safe & Respectful", desc: "Community guidelines keep everyone safe", delay: "0.4s", color: "#F4A261" },
+              { icon: <Sparkles size={32} />, title: "Fun & Engaging", desc: "Enjoy emojis, animations, and interactive features", delay: "0.5s", color: "#FFB5A7" },
+            ].map((feature, idx) => (
+              <div
+                key={idx}
+                style={{ 
+                  animation: `scale-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
+                  animationDelay: feature.delay
+                }}
+                onMouseEnter={() => setHoveredFeature(idx)}
+                onMouseLeave={() => setHoveredFeature(null)}
+                className="group relative rounded-3xl comic-border p-6 bg-white transition-all duration-300 hover:translate-y-[-8px] hover:comic-shadow cursor-pointer"
+              >
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: `linear-gradient(135deg, ${feature.color}20, transparent)` }}></div>
+                
+                <div className="relative z-10">
+                  <div className="inline-block p-3 rounded-2xl comic-border mb-4 transition-all" style={{ backgroundColor: feature.color + "30", borderColor: feature.color }}>
+                    <div style={{ color: feature.color }} className="transition-transform group-hover:scale-110">
+                      {feature.icon}
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-2xl font-black text-[#1e3a8a] mb-2">{feature.title}</h3>
+                  <p className="text-base font-semibold text-gray-600">{feature.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* --- Chat Interface Layout --- */}
-        <div className="relative flex h-[600px] w-full max-w-6xl flex-col overflow-hidden rounded-3xl comic-border bg-[#f8fafc] md:flex-row comic-shadow">
+        <div className="relative flex h-[600px] w-full max-w-6xl flex-col overflow-hidden rounded-3xl comic-border bg-[#f8fafc] md:flex-row comic-shadow animate-slide-up" style={{ animationDelay: "0.3s" }}>
           
           {/* Left Sidebar - Gadget Rooms */}
           <div className="no-scrollbar hidden w-full flex-col gap-4 overflow-y-auto comic-border border-y-0 border-l-0 border-r-4 bg-[#FFD166] p-4 md:flex md:w-[28%]">
@@ -306,7 +413,7 @@ const LandingPage = () => {
             <RoomItem icon={<BookOpen fill="currentColor"/>} name="School Roof" />
             <RoomItem icon={<Music fill="currentColor"/>} name="Gian's Concert" />
             
-            <div className="mt-auto bg-white/50 rounded-2xl p-4 comic-border comic-shadow-sm">
+            <div className="mt-auto bg-white/50 rounded-2xl p-4 comic-border comic-shadow-sm hover:bg-white transition-colors">
                <p className="text-sm font-bold text-center">Don't forget your 🥞 Dorayaki toll!</p>
             </div>
           </div>
@@ -325,7 +432,7 @@ const LandingPage = () => {
                   <p className="text-sm font-semibold text-gray-500">22nd Century Connection Active</p>
                 </div>
               </div>
-              <span className="rounded-full comic-border bg-[#00AEEF] text-white px-4 py-1.5 text-sm font-bold comic-shadow-sm flex items-center gap-2">
+              <span className="rounded-full comic-border bg-[#00AEEF] text-white px-4 py-1.5 text-sm font-bold comic-shadow-sm flex items-center gap-2 animate-pulse-glow">
                  <Zap className="h-4 w-4" fill="white" /> Active Now
               </span>
             </div>
@@ -373,7 +480,7 @@ const LandingPage = () => {
                 </div>
                 <button 
                   onClick={handleSendMessage}
-                  className="group flex h-16 w-16 items-center justify-center rounded-2xl comic-border bg-[#00AEEF] transition-all comic-shadow-sm hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none active:bg-[#008ccc]"
+                  className="group flex h-16 w-16 items-center justify-center rounded-2xl comic-border bg-[#00AEEF] transition-all comic-shadow-sm hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none active:bg-[#008ccc] hover:bg-[#0099dd]"
                 >
                   <Send className="h-7 w-7 text-white transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                 </button>
@@ -401,15 +508,9 @@ const LandingPage = () => {
 
 // Subcomponents
 
-const Zap = (props) => (
-  <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-  </svg>
-);
-
 const RoomItem = ({ icon, name, active }) => (
-  <div className={`flex cursor-pointer items-center gap-3 rounded-2xl comic-border p-3 transition-transform hover:-translate-y-1 ${active ? 'bg-white comic-shadow-sm' : 'bg-[#FFe499] hover:bg-white'}`}>
-    <span className={`flex h-10 w-10 items-center justify-center rounded-xl comic-border ${active ? 'bg-[#FF69B4] text-white' : 'bg-white text-[#1e3a8a]'}`}>
+  <div className={`flex cursor-pointer items-center gap-3 rounded-2xl comic-border p-3 transition-all hover:-translate-y-1 hover:comic-shadow-sm ${active ? 'bg-white comic-shadow-sm scale-105' : 'bg-[#FFe499] hover:bg-white'}`}>
+    <span className={`flex h-10 w-10 items-center justify-center rounded-xl comic-border transition-transform ${active ? 'bg-[#FF69B4] text-white animate-spin-slow' : 'bg-white text-[#1e3a8a] group-hover:scale-110'}`}>
       {icon}
     </span>
     <span className="font-bold text-[17px]">{name}</span>
@@ -417,17 +518,17 @@ const RoomItem = ({ icon, name, active }) => (
 );
 
 const Message = ({ text, bg, avatarSeed, label, textColor, isSelf }) => (
-  <div className={`flex items-end gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 z-10 ${isSelf ? 'flex-row-reverse' : 'flex-row'}`}>
+  <div className={`flex items-end gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500 z-10 ${isSelf ? 'flex-row-reverse' : 'flex-row'}`}>
     
     {!isSelf && (
-      <div className={`h-12 w-12 flex-shrink-0 overflow-hidden rounded-full comic-border ${bg} comic-shadow-sm`}>
+      <div className={`h-12 w-12 flex-shrink-0 overflow-hidden rounded-full comic-border ${bg} comic-shadow-sm transition-transform hover:scale-110 cursor-pointer`}>
         <img src={`https://api.dicebear.com/7.x/adventurer/svg?seed=${avatarSeed}&backgroundColor=transparent`} alt="avatar" className="h-full w-full object-cover scale-110 translate-y-1"/>
       </div>
     )}
 
     <div className={`flex flex-col max-w-[75%] ${isSelf ? 'items-end' : 'items-start'}`}>
       {!isSelf && <span className="ml-2 mb-1 text-sm font-black text-[#1e3a8a]">{label}</span>}
-      <div className={`relative rounded-3xl comic-border px-5 py-3 comic-shadow-sm ${isSelf ? 'rounded-br-sm bg-[#00AEEF] text-white' : `rounded-bl-sm ${bg} ${textColor}`}`}>
+      <div className={`relative rounded-3xl comic-border px-5 py-3 comic-shadow-sm transition-all hover:shadow-lg ${isSelf ? 'rounded-br-sm bg-[#00AEEF] text-white' : `rounded-bl-sm ${bg} ${textColor}`}`}>
         <p className="font-bold text-base md:text-[17px] leading-snug break-words">{text}</p>
         
         {/* Cartoon Speech Bubble Tail */}
@@ -438,17 +539,16 @@ const Message = ({ text, bg, avatarSeed, label, textColor, isSelf }) => (
 );
 
 const UserCard = ({ name, status, color, emoji }) => (
-  <div className="group flex items-center gap-3 rounded-2xl comic-border p-3 bg-white transition-transform hover:-translate-y-1 hover:comic-shadow-sm cursor-pointer">
-    <div className={`relative h-12 w-12 rounded-full comic-border ${color} flex items-center justify-center text-xl`}>
+  <div className="group flex items-center gap-3 rounded-2xl comic-border p-3 bg-white transition-all hover:-translate-y-1 hover:comic-shadow-sm cursor-pointer hover:bg-[#fef3f0]">
+    <div className={`relative h-12 w-12 rounded-full comic-border ${color} flex items-center justify-center text-xl transition-transform group-hover:scale-110 group-hover:animate-spin-slow`}>
       {emoji}
-      <div className="absolute bottom-0 right-0 h-4 w-4 rounded-full comic-border bg-[#34d399]"></div>
+      <div className="absolute bottom-0 right-0 h-4 w-4 rounded-full comic-border bg-[#34d399] animate-pulse"></div>
     </div>
     <div className="flex-1">
       <p className="text-[17px] font-black text-[#1e3a8a] leading-tight">{name}</p>
       <p className="text-sm font-bold text-gray-500">{status}</p>
     </div>
   </div>
-  
 );
 
 export default LandingPage;
